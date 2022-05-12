@@ -43,15 +43,15 @@ Analysis Geo 880**
 - Let us talk specifically: 
     - We have WS A at location XYZ 
     - We draw a circle with a radius of 500 meters around WS A, we call this area Zone A 
-    - There are now three (and a half) options:
+    - There are now four options:
 
-        1. Option:
+        - Option A:
             - We determine either the amount of time spent by all wild boar within Zone A or the number of wild boars that were present in Zone A within 1 week BEFORE the beginning of the Schreck, and we compare this to the absolute number of individuals in Zone A during the Schreck phase, and after the Schreck phase 
             - We can then compare the Before-Schreck period to the 1-Week-During-Schreck, 2-Week-During-Schreck etc. and 1-Week-After-Schreck, 2-Week-After-Schreck, 3-Week-After-Schreck phase to see if there is an effect, and esp. when the effect is measurable and how fast the effect diminishes with time after the Schreck is done 
             - We can do this comparison visually with a boxplot and compare it with an ANOVA 
             - However, this method does not provide us with any results about which factors have the strongest influence on the presence of wild boar and which settings are the most effective at frightening away wild boar<br/><br/>
 
-        2. Option:
+        - Option B:
             - We create a generalized mixed effect model, specifically a logistic regression (the response variable is variable)  
             - The explanatory variables include mode, noise level, interval, azimuth, and time that has passed since the Schreck event has passed 
             - The response variable equals presence (1) or absence (0) of individual wild boar in Zone A (see above)  
@@ -59,10 +59,10 @@ Analysis Geo 880**
             - We can then see which, if any factors, have an influence on the presence and absence of wild boar within the Schreck-affected zone 
             - We then take the statistically significant factors and determine the most effective settings and combination of settings visually using point-plots and interaction plots<br/><br/>
 
-        3. (Half) Option:
+        - Option C:
             - We repeat the above analysis multiple times with different radii to determine how far the effects of the WS go<br/><br/>
 
-        4. Option: 
+        - Option D: 
             - We create a generalized mixed effect model, specifically a linear regression (the response variable is continuous) 
             - All else equals the above settings<br/><br/>
 
