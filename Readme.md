@@ -16,6 +16,7 @@ Analysis Geo 880**
 ## Research Questions
 <!-- (50-60 words) -->
 - How effective are the Wildschwein-Schreck (WS) at keeping away wild boar and how long do these effects last?
+- What settings (mode, noise level, interval, azimuth) and setting-combintations are most effective at keeping away wild boar?
 
 ## Results / products
 <!-- What do you expect, anticipate? -->
