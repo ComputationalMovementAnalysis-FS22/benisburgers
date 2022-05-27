@@ -4,6 +4,9 @@ library(tidyverse)
 devtools::install_github("ComputationalMovementAnalysis/ComputationalMovementAnalysisData")
 library(ComputationalMovementAnalysisData)
 library(sf)
+library(leaflet)
+library(leaflet.extras2)
+library(gganimate)
 
 wildschwein_BE
 wildschwein_metadata
@@ -35,21 +38,49 @@ wildschwein_BE_sf <- st_transform(wildschwein_BE_sf, crs = 4326)
 wildschwein_BE_sf
 
 
-## Visualize the data
+## Visualize the data (schreck and wildschwein locations)
 
-# for Macs (alternatively just use ggplot() instead of x11_ggplot())
-x11_ggplot <- function(...) {
-  X11(type = "cairo")
-  ggplot(...)
-}
-
-x11_ggplot() +
-  geom_sf(data = schreck_locations_sf, colour = "red") +
+ggplot() +
   geom_sf(data = wildschwein_BE_sf, colour = "blue") +
-  annotation_scale()
+  geom_sf(data = schreck_locations_sf, colour = "red", alpha = 0.5)
+
+
+# Crop both sf data frames (wildschwein & schreck locations) to only show area with significant overlap
+
+wildschwein_BE_sf_cropped <- st_crop(wildschwein_BE_sf, xmin = 6.9, xmax = 7.2, ymin = 46.9, ymax = 47.05)
+schreck_locations_sf_cropped <- st_crop(schreck_locations_sf, xmin = 6.9, xmax = 7.2, ymin = 46.9, ymax = 47.05)
 
 ggplot() +
-  geom_point(data = wildschwein_BE, mapping = aes(x = E, y = N))
+  geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue")
 
 ggplot() +
-  geom_point(data = schreck_locations, mapping = aes(x = lon, y = lat))
+  geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5)
+
+ggplot() +
+  geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue") +
+  geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5)
+
+
+# Try to visualize the shreck events
+
+# First step: Join the schreck locations with the schreck events
+
+view(schreck_agenda)
+
+schreck_agenda_and_locations <- schreck_locations_sf_cropped %>%
+  left_join(schreck_agenda, by = "id")
+
+view(schreck_agenda_and_locations)
+
+# Second step: Create a new data frame for every day for every schreck location that is active (see column 'activeDay')
+
+schreck_agenda_and_locations_daily <- schreck_agenda_and_locations %>%
+  mutate(activeDay = map2(datum_on, datum_off, seq, by = "1 day")) %>%
+  unnest
+view(schreck_agenda_and_locations_daily)
+
+# Try to visualize these events somehow
+
+p <- ggplot() +
+  geom_sf(data = schreck_agenda_and_locations_daily, color = "blue") +
+  transition_manual(activeDay)
