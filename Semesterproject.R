@@ -81,6 +81,6 @@ view(schreck_agenda_and_locations_daily)
 
 # Try to visualize these events somehow
 
-p <- ggplot() +
+ggplot() +
   geom_sf(data = schreck_agenda_and_locations_daily, color = "blue") +
   transition_manual(activeDay)
