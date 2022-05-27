@@ -81,6 +81,12 @@ view(schreck_agenda_and_locations_daily)
 
 # Try to visualize these events somehow
 
-ggplot() +
-  geom_sf(data = schreck_agenda_and_locations_daily, color = "blue") +
+
+ggplot(data = schreck_agenda_and_locations_daily) +
+  geom_sf(mapping = aes(color = id)) +
   transition_manual(activeDay)
+
+ggplot() +
+  geom_sf(data = schreck_agenda_and_locations_daily, mapping = aes(color = id) +
+  transition_manual(activeDay) +
+  labs(title = 'Values at {(current_frame)}')
