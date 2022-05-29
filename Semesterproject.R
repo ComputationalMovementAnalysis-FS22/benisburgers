@@ -33,17 +33,17 @@ wildschwein_BE_sf <- st_as_sf(wildschwein_BE,
                                  crs = 2056)
 wildschwein_BE_sf
 
-### Convert wildschwein_BE from crs 2056 (WGS84) to crs 4326 (CH1903+ / LV95) (is this correct?)
+### Convert schreck_locations_sf from crs 4326 (WGS84) to crs 2056 (CH1903+ / LV95)
 
-wildschwein_BE_sf <- st_transform(wildschwein_BE_sf, crs = 4326)
-wildschwein_BE_sf
+schreck_locations_sf <- st_transform(schreck_locations_sf, crs = 2056)
 
 
 ## Visualize the data (schreck and wildschwein locations)
 
 ggplot() +
   geom_sf(data = wildschwein_BE_sf, colour = "blue") +
-  geom_sf(data = schreck_locations_sf, colour = "red", alpha = 0.5)
+  geom_sf(data = schreck_locations_sf, colour = "red", alpha = 0.5) +
+  annotation_scale()
 
 
 # Crop both sf data frames (wildschwein & schreck locations) to only show area with significant overlap
