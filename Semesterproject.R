@@ -36,6 +36,7 @@ wildschwein_BE_sf
 ### Convert schreck_locations_sf from crs 4326 (WGS84) to crs 2056 (CH1903+ / LV95)
 
 schreck_locations_sf <- st_transform(schreck_locations_sf, crs = 2056)
+schreck_locations_sf
 
 
 ## Visualize the data (schreck and wildschwein locations)
@@ -43,7 +44,8 @@ schreck_locations_sf <- st_transform(schreck_locations_sf, crs = 2056)
 ggplot() +
   geom_sf(data = wildschwein_BE_sf, colour = "blue") +
   geom_sf(data = schreck_locations_sf, colour = "red", alpha = 0.5) +
-  annotation_scale()
+  annotation_scale() +
+  coord_sf(datum=st_crs(2056))
 
 
 # Crop both sf data frames (wildschwein & schreck locations) to only show area with significant overlap
@@ -53,16 +55,19 @@ schreck_locations_sf_cropped <- st_crop(schreck_locations_sf, xmin = 6.9, xmax =
 
 ggplot() +
   geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue") +
-  annotation_scale()
+  annotation_scale() +
+  coord_sf(datum=st_crs(2056))
 
 ggplot() +
   geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5) +
-  annotation_scale()
+  annotation_scale() +
+  coord_sf(datum=st_crs(2056))
 
 ggplot() +
   geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue") +
   geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5) +
-  annotation_scale()
+  annotation_scale() +
+  coord_sf(datum=st_crs(2056))
 
 
 # Try to visualize the shreck events
@@ -88,13 +93,15 @@ view(schreck_agenda_and_locations_daily)
 
 ggplot(data = schreck_agenda_and_locations_daily) +
   geom_sf(mapping = aes(color = id)) +
-  annotation_scale()
+  annotation_scale() +
+  coord_sf(datum=st_crs(2056))
 
 ggplot() +
   geom_sf(data = schreck_agenda_and_locations_daily, mapping = aes(color = id)) +
   transition_manual(activeDay) +
   labs(title = 'Values at {(current_frame)}') +
-  annotation_scale()
+  annotation_scale() +
+  coord_sf(datum=st_crs(2056))
 
 
 
