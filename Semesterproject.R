@@ -7,6 +7,7 @@ library(sf)
 library(leaflet)
 library(leaflet.extras2)
 library(gganimate)
+library(ggspatial)
 
 wildschwein_BE
 wildschwein_metadata
@@ -51,14 +52,17 @@ wildschwein_BE_sf_cropped <- st_crop(wildschwein_BE_sf, xmin = 6.9, xmax = 7.2, 
 schreck_locations_sf_cropped <- st_crop(schreck_locations_sf, xmin = 6.9, xmax = 7.2, ymin = 46.9, ymax = 47.05)
 
 ggplot() +
-  geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue")
+  geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue") +
+  annotation_scale()
 
 ggplot() +
-  geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5)
+  geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5) +
+  annotation_scale()
 
 ggplot() +
   geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue") +
-  geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5)
+  geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5) +
+  annotation_scale()
 
 
 # Try to visualize the shreck events
@@ -83,12 +87,14 @@ view(schreck_agenda_and_locations_daily)
 # Try to visualize these events somehow
 
 ggplot(data = schreck_agenda_and_locations_daily) +
-  geom_sf(mapping = aes(color = id))
+  geom_sf(mapping = aes(color = id)) +
+  annotation_scale()
 
 ggplot() +
   geom_sf(data = schreck_agenda_and_locations_daily, mapping = aes(color = id)) +
   transition_manual(activeDay) +
-  labs(title = 'Values at {(current_frame)}')
+  labs(title = 'Values at {(current_frame)}') +
+  annotation_scale()
 
 
 
