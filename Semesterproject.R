@@ -50,8 +50,8 @@ ggplot() +
 
 # Crop both sf data frames (wildschwein & schreck locations) to only show area with significant overlap
 
-wildschwein_BE_sf_cropped <- st_crop(wildschwein_BE_sf, xmin = 6.9, xmax = 7.2, ymin = 46.9, ymax = 47.05)
-schreck_locations_sf_cropped <- st_crop(schreck_locations_sf, xmin = 6.9, xmax = 7.2, ymin = 46.9, ymax = 47.05)
+wildschwein_BE_sf_cropped <- st_crop(wildschwein_BE_sf, xmin = 2560000, xmax = 2580000, ymin = 1200000, ymax = 1220000)
+schreck_locations_sf_cropped <- st_crop(schreck_locations_sf, xmin = 2560000, xmax = 2580000, ymin = 1200000, ymax = 1220000)
 
 ggplot() +
   geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue") +
