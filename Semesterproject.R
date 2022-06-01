@@ -8,6 +8,7 @@ library(leaflet)
 library(leaflet.extras2)
 library(gganimate)
 library(ggspatial)
+library(cowplot)
 
 wildschwein_BE
 wildschwein_metadata
@@ -160,30 +161,41 @@ draw_density_plot <- function(schreck_id, radius, days_before, days_after) {
     ggplot() +
     geom_density(mapping = aes(x = date)) + 
     geom_segment(aes(x = as.Date(specific_schreck$datum_on), y = 0, xend = as.Date(specific_schreck$datum_on), yend = 0.05)) +
-    geom_segment(aes(x = as.Date(specific_schreck$datum_off), y = 0, xend = as.Date(specific_schreck$datum_off), yend = 0.05))
+    geom_segment(aes(x = as.Date(specific_schreck$datum_off), y = 0, xend = as.Date(specific_schreck$datum_off), yend = 0.05)) +
+    labs(
+      title = schreck_id, 
+      subtitle = paste(
+        "GPS Points:", nrow(specific_schreck_wildschwein_cropped),
+        "|",
+        "Schreck Duration:", (difftime(as.Date(specific_schreck$datum_off), as.Date(specific_schreck$datum_on), units = "days")),
+        "days"
+        )
+      )
   
   return(density_plot_specific_schreck)
 }
 
 # Draw the plots for each relevant schreck location
 
-WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", 150, 10, 14)
+WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", 500, 10, 14)
 WSS_2015_01_plot
 
-WSS_2015_03_plot <- draw_density_plot("WSS_2015_03", 150, 10, 14)
+WSS_2015_03_plot <- draw_density_plot("WSS_2015_03", 500, 10, 14)
 WSS_2015_03_plot
 
-WSS_2015_04_plot <- draw_density_plot("WSS_2015_04", 150, 10, 14)
+WSS_2015_04_plot <- draw_density_plot("WSS_2015_04", 500, 10, 14)
 WSS_2015_04_plot
 
-WSS_2016_01_plot <- draw_density_plot("WSS_2016_01", 150, 10, 14)
+WSS_2016_01_plot <- draw_density_plot("WSS_2016_01", 500, 10, 14)
 WSS_2016_01_plot
 
-WSS_2016_05_plot <- draw_density_plot("WSS_2016_05", 150, 10, 14)
+WSS_2016_05_plot <- draw_density_plot("WSS_2016_05", 500, 10, 14)
 WSS_2016_05_plot
 
-WSS_2016_06_plot <- draw_density_plot("WSS_2016_06", 150, 10, 14)
+WSS_2016_06_plot <- draw_density_plot("WSS_2016_06", 500, 10, 14)
 WSS_2016_06_plot
 
-WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", 150, 10, 14)
+WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", 500, 10, 14)
 WSS_2016_13_plot
+
+plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot, WSS_2016_06_plot, WSS_2016_13_plot)
