@@ -199,3 +199,20 @@ WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", 500, 10, 14)
 WSS_2016_13_plot
 
 plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot, WSS_2016_06_plot, WSS_2016_13_plot)
+
+
+# Show how the circles lie over each other to determine whether to combine some Schreck-Locations
+
+schreck_agenda_and_locations_merged_cricles <- st_buffer(schreck_agenda_and_locations_merged, 250)
+schreck_agenda_and_locations_merged_cricles
+
+ggplot() +
+  geom_sf(data = schreck_agenda_and_locations_merged_cricles) +
+  geom_sf(
+    data = schreck_agenda_and_locations_merged, 
+    mapping = aes(color = paste(id, "|", "on:", datum_on, "|", "off:", datum_off))
+    ) +
+  annotation_scale() +
+  coord_sf(datum=st_crs(2056)) +
+  labs(color = 'Schreck ID | Date On | Date Off', title = "Radius: 250 m")
+
