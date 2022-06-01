@@ -216,3 +216,61 @@ ggplot() +
   coord_sf(datum=st_crs(2056)) +
   labs(color = 'Schreck ID | Date On | Date Off', title = "Radius: 250 m")
 
+
+# Play around with leaflet: Create an interactive map with the Wildschwein Locations and the Schreck Location for one specific Schreck
+
+  # Filter schreck agenda to specific schreck
+  specific_schreck <- schreck_agenda_and_locations_merged %>%
+    filter(id == "WSS_2015_01")
+  specific_schreck
+  
+  # Draw a circle around that schreck
+  specific_schreck_circle <- st_buffer(specific_schreck, dist = 500)
+  
+  # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event (7 days before, during and 21 days after)
+  specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
+    filter(
+      DatetimeUTC > as.Date(specific_schreck$datum_on) - 10,
+      DatetimeUTC < as.Date(specific_schreck$datum_off) + 10
+    )
+  
+  # Filter the above-mentioned wildschwein points to ones within the schreck circle
+  specific_schreck_wildschwein_cropped <- specific_schreck_wildschwein %>%
+    st_filter(specific_schreck_circle)
+  
+  # Create a new convenience variable (date, without time)
+  specific_schreck_wildschwein_cropped <- specific_schreck_wildschwein_cropped %>%
+    mutate(
+      date = as.Date(DatetimeUTC)
+    )
+  
+  view(specific_schreck_wildschwein_cropped)
+  
+  ggplot(specific_schreck_wildschwein_cropped) +
+    geom_sf(aes(group = date)) +
+    transition_time(date)
+  
+  # Convert back to lon/lat format (WGS83), otherwise leaflet doesn't work
+  
+  wildschwein_4326 <- st_transform(specific_schreck_wildschwein_cropped, crs = 4326)
+  wildschwein_4326
+  
+  specific_schreck_4326 <- st_transform(specific_schreck, crs = 4326)
+  specific_schreck_4326
+  
+  leaflet(data = specific_schreck_4326) %>%
+    addTiles() %>%
+    addCircleMarkers() %>%
+    addTimeslider(data = wildschwein_4326,
+                  options = timesliderOptions(
+                    position = "topright",
+                    timeAttribute = "DatetimeUTC",
+                    sameDate = TRUE,
+                    alwaysShowDate = TRUE)) %>%
+    setView(-72, 22, 4)
+
+  schreck_agenda %>%
+    filter(
+      id == "WSS_2015_01"
+    )
+  
