@@ -104,8 +104,6 @@ ggplot() +
   annotation_scale() +
   coord_sf(datum=st_crs(2056))
 
-
-
 ### Density plots for number of GPS points within radius around each schreck location over a certain number of days before, during and after schreck events ###
 
 # Filter Schreck-Agenda to the times when we have Wildschwein Data
@@ -128,77 +126,83 @@ schreck_agenda_and_locations_merged
 
 # Create function that can automatically draw a denstiy plot for a specific schreck location 
 # & specify number of days before and after schreck event that should appear on plot
-# & specify the radius around schreck location
-draw_density_plot <- function(schreck_id, radius, days_before, days_after) {
+# & specify the radii around schreck location
+draw_density_plot <- function(schreck_id, radii, days_before, days_after) {
   # Filter schreck agenda to specific schreck
   specific_schreck <- schreck_agenda_and_locations_merged %>%
     filter(id == schreck_id)
   
-  # Draw a circle around that schreck
-  specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
-  
-  # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event (7 days before, during and 21 days after)
+  # Filter all wildschwein points by date to only ones occuring within above-mentioned schreck event (7 days before, during and 21 days after)
   specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
     filter(
       DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
       DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
     )
   
-  # Filter the above-mentioned wildschwein points to ones within the schreck circle
-  specific_schreck_wildschwein_cropped <- specific_schreck_wildschwein %>%
-    st_filter(specific_schreck_circle)
+  # For each radius (x) in radii... (this creates a vector with one SF data frame per radius in radii)
+  schreck_specific_wildschwein_points <- radii %>% map(
+    .f = function(x){
+      # ... Create a circle / buffer with radius x around schreck 
+      circle <- st_buffer(specific_schreck, x)
+      # ... Filter all date-relevant wildschwin points to the ones in circle with radius x
+      pigs_in_circle <- st_filter(specific_schreck_wildschwein, circle)
+      # ... Add some convenience variables (radius and date) in order to visualize the density plots
+      pigs_in_circle <- pigs_in_circle %>%
+        mutate(
+          radius = as.factor(x),
+          date = as.Date(DatetimeUTC)
+        )
+      # ... return SF Data frame with the relevant pigs for radius x
+      return(pigs_in_circle)
+    }
+  )
   
-  # Create a new convenience variable (date, without time)
-  specific_schreck_wildschwein_cropped <- specific_schreck_wildschwein_cropped %>%
-    mutate(
-      date = as.Date(DatetimeUTC)
-    )
+  # Combine all the SF data frames in schreck_specific_wildschwein_points to a singular data frame with variable 'radius'
+  combined_wildschwein_points <- bind_rows(schreck_specific_wildschwein_points)
   
-  # Plot the number of wildschwein per day within the schreck circle from 7 days before until 21 days after the schreck event
-  # Then add 2 lines to signify start and end off schreck event
-  density_plot_specific_schreck <- specific_schreck_wildschwein_cropped %>%
-    group_by(date) %>%
+  
+  # Plot the number of wildschwein per day within each schreck buffer for the specified dates
+  combined_wildschwein_points %>%
     ggplot() +
-    geom_density(mapping = aes(x = date)) + 
-    geom_segment(aes(x = as.Date(specific_schreck$datum_on), y = 0, xend = as.Date(specific_schreck$datum_on), yend = 0.05)) +
-    geom_segment(aes(x = as.Date(specific_schreck$datum_off), y = 0, xend = as.Date(specific_schreck$datum_off), yend = 0.05)) +
+    geom_density(mapping = aes(x = date, color = radius)) +
+    # Then add 2 lines to signify start and end off schreck event
+    geom_vline(xintercept =  as.Date(specific_schreck$datum_on), linetype="dotted", color = "blue", size = 1.5) +
+    geom_vline(xintercept =  as.Date(specific_schreck$datum_off), linetype="dotted", color = "blue", size = 1.5) +
     labs(
       title = schreck_id, 
       subtitle = paste(
-        "GPS Points:", nrow(specific_schreck_wildschwein_cropped),
+        "GPS Points:", nrow(combined_wildschwein_points),
         "|",
         "Schreck Duration:", (difftime(as.Date(specific_schreck$datum_off), as.Date(specific_schreck$datum_on), units = "days")),
         "days"
-        )
       )
-  
-  return(density_plot_specific_schreck)
+    )
 }
 
 # Draw the plots for each relevant schreck location
 
-WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", 500, 10, 14)
+WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(100, 200, 400), 10, 14)
 WSS_2015_01_plot
 
-WSS_2015_03_plot <- draw_density_plot("WSS_2015_03", 500, 10, 14)
+WSS_2015_03_plot <- draw_density_plot("WSS_2015_03", c(100, 200, 400), 10, 14)
 WSS_2015_03_plot
 
-WSS_2015_04_plot <- draw_density_plot("WSS_2015_04", 500, 10, 14)
+WSS_2015_04_plot <- draw_density_plot("WSS_2015_04", c(100, 200, 400), 10, 14)
 WSS_2015_04_plot
 
-WSS_2016_01_plot <- draw_density_plot("WSS_2016_01", 500, 10, 14)
+WSS_2016_01_plot <- draw_density_plot("WSS_2016_01", c(100, 200, 400), 10, 14)
 WSS_2016_01_plot
 
-WSS_2016_05_plot <- draw_density_plot("WSS_2016_05", 500, 10, 14)
+WSS_2016_05_plot <- draw_density_plot("WSS_2016_05", c(100, 200, 400), 10, 14)
 WSS_2016_05_plot
 
-WSS_2016_06_plot <- draw_density_plot("WSS_2016_06", 500, 10, 14)
+WSS_2016_06_plot <- draw_density_plot("WSS_2016_06", c(100, 200, 400), 10, 14)
 WSS_2016_06_plot
 
-WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", 500, 10, 14)
+WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", c(100, 200, 400), 10, 14)
 WSS_2016_13_plot
 
-plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot, WSS_2016_06_plot, WSS_2016_13_plot)
+plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot)
 
 
 # Show how the circles lie over each other to determine whether to combine some Schreck-Locations
@@ -273,4 +277,5 @@ ggplot() +
     filter(
       id == "WSS_2015_01"
     )
+
   
