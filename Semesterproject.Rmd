@@ -1,7 +1,7 @@
 ---
-title: The title of your Semesterproject
-subtitle: A subtle subtitle
-author: Firstname1 Lastname1 and Firstname2 Lastname2
+title: Check how to Schreck
+subtitle: Semesterproject of the module PTED FS 22
+author: Fabienne Gräppi and Benjamin Bar-Gera
 output: html_document
 
 ---
@@ -25,54 +25,313 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 
-## Abstract
+# Abstract
 
 <!-- the following is just a placeholder text, remove it!-->
 Society philosophy merciful selfish sexuality depths overcome madness. Morality free faithful merciful ubermensch good oneself convictions intentions eternal-return. Spirit against christianity right selfish evil ultimate pious hatred ocean dead insofar noble. Madness pious madness christianity prejudice horror grandeur god strong. Ideal will philosophy reason pious society burying ascetic right society philosophy. Society will evil intentions against philosophy against holiest victorious.
 
 
-## Introduction
+# Introduction
 
-<!-- the following is just a placeholder text, remove it!-->
-Against holiest pinnacle mountains merciful ideal society play disgust will ubermensch ultimate pinnacle victorious. Snare value law gains battle pious intentions revaluation strong. Insofar snare faith ideal oneself.
+in the making
 
-```{r}
+## Research Questions 
+- How effective are the Wildschwein-Schreck (WS) at keeping away wild boar and how long do these effects last?
+- What settings (mode, noise level, interval, azimuth) and setting-combintations are most effective at keeping away wild boar?
+
+# Material and Methods
+## Data and Packages
+Following R-Packages were used for the data processing and analysis:
+
+- ComputationalMovementAnalysisData
+- cowplot
+- gganimate
+- ggspatial
+- knitr
+- leaflet
+- leaflet.extras2
+- sf
+- tidyverse
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+devtools::install_github("ComputationalMovementAnalysis/ComputationalMovementAnalysisData")
 library(ComputationalMovementAnalysisData)
-library(ggplot2)
-
-# Include tables with the function "kable"
-
-knitr::kable(head(wildschwein_BE))
+library(sf)
+library(leaflet)
+library(leaflet.extras2)
+library(gganimate)
+library(ggspatial)
+library(cowplot)
+library(knitr)
 ```
+Data used for this project was provided from the module supervisors. Used was a dataset of wild boar locations with time stamps (*Table 1*; wildschwein_BE), a set with the location of the scare offs (*Table 2*; schreck_location) and a third set including the data when the scare offs were on/off with additional information about parameter settings. (*Table 3*; schreck_agenda). The wild boar location was sampled in 15 min intervals while for the scare off events we have data of the date of on/off but no further time information. The scare off settings can be adjusted for two different modes (standard v1 and aggressive v2), volume (a range of 33 - 100), interval (12.5 - 30), max. and min. orientation (0-330).
 
-<!-- the following is just a placeholder text, remove it!-->
-Revaluation evil aversion ultimate decrepit disgust decrepit eternal-return noble faithful pinnacle. Truth ascetic inexpedient decrepit free. Ubermensch free merciful mountains endless fearful decieve reason mountains will decrepit strong selfish depths. Overcome faith snare gains oneself transvaluation.
-
+*Table 1: Wild boar location data*
 ```{r}
-# include plots automatically
+kable(head(wildschwein_BE))
+```
 
-ggplot(schreck_locations, aes(E, N)) +
-  geom_point() +
-  coord_map()
+*Table 2: Scare off location data*
+```{r}
+kable(head(schreck_locations))
+```
 
+*Table 3: Scare off on/off, interval and parameter data*
+```{r}
+kable(head(schreck_agenda))
+```
+## Filter Data
+The data was filtered for the relevant areas and time periods. As a first step, only wild boar location data within the area of the scare offs was considered. Therefore, the data frames were transformed to sf objects to then be visually investigated (*Figure 1*) and then cropped to the relevant area (*Figure 2*).
+
+*Figure 1: Wild boar locations (blue) and scare off locations (red) uncropped*
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+# Convert data to sf formats
+schreck_locations_sf <- st_as_sf(schreck_locations,
+                                 coords = c("lon", "lat"),
+                                 crs = 4326)
+wildschwein_BE_sf <- st_as_sf(wildschwein_BE,
+                                 coords = c("E", "N"),
+                                 crs = 2056)
+# Convert schreck_locations_sf from crs 4326 (WGS84) to crs 2056 (CH1903+ / LV95)
+schreck_locations_sf <- st_transform(schreck_locations_sf, crs = 2056)
+
+# Visualize the data (schreck and wildschwein locations)
+ggplot() +
+  geom_sf(data = wildschwein_BE_sf, colour = "blue") +
+  geom_sf(data = schreck_locations_sf, colour = "red", alpha = 0.5) +
+  annotation_scale() +
+  coord_sf(datum=st_crs(2056))
+
+# Crop both sf data frames (wildschwein & schreck locations) to only show area with significant overlap
+
+wildschwein_BE_sf_cropped <- st_crop(wildschwein_BE_sf, xmin = 2560000, xmax = 2580000, ymin = 1200000, ymax = 1220000)
+schreck_locations_sf_cropped <- st_crop(schreck_locations_sf, xmin = 2560000, xmax = 2580000, ymin = 1200000, ymax = 1220000)
+```
+
+*Figure 2: Wild boar locations (blue) and scare off locations (red) cropped*
+```{r , echo = FALSE, warning=FALSE, message=FALSE}
+ggplot() +
+  geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue") +
+  geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5) +
+  annotation_scale() +
+  coord_sf(datum=st_crs(2056))
+```
+Secondly, the data frames of the scare off data was joined to one data frame and afterwards filtered according to the time when wild boar data was available. After filtering 7 relevant scare offs remain. Those are listed in *Table 4*. In order to be able to rule out the possibility that the scare offs influenced someone one anothers data, in terms of wild boar occurrence, we examined the distances of the scare offs, as shown in *Figure 3*. Although scare off 2015_04 and 2016_06 are very close to each other (a few meter), they were active in different years. Therefore, we assumed there is no mutual influence in terms of wild boar scare off. However, for the statistical approaches we had to neglect two additonal scare offs. WSS_2016_06 provides only 7 GPS points within a scare off duration of 30 with 10 days before and 14 days after event and WSS_2016_03 was active only for 5 days which is not comparable to the other events.
+
+*Table 4: Scare offs active within wild boar sampling period*
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+# First step: Join the schreck locations with the schreck events
+schreck_agenda_and_locations <- schreck_locations_sf_cropped %>%
+  left_join(schreck_agenda, by = "id")
+
+# Filter Schreck-Agenda to the times when we have Wildschwein Data
+schreck_agenda_and_locations_filtered <- schreck_agenda_and_locations %>%
+  filter(
+    datum_on > min(wildschwein_BE_sf_cropped$DatetimeUTC),
+    datum_off < max(wildschwein_BE_sf_cropped$DatetimeUTC)
+  )
+
+# We do this to merge the two events each for WSS_2015_01, WSS_2015_03, WSS_2015_04...
+schreck_agenda_and_locations_merged <- schreck_agenda_and_locations_filtered %>%
+  group_by(id) %>%
+  summarise(
+    datum_on = min(datum_on),
+    datum_off = max(datum_off)
+  )
+kable(schreck_agenda_and_locations_merged)
+```
+
+*Figure 3: Scare off location overlap*
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# Show how the circles lie over each other to determine whether to combine some Schreck-Locations
+schreck_agenda_and_locations_merged_cricles <- st_buffer(schreck_agenda_and_locations_merged, 250)
+
+ggplot() +
+  geom_sf(data = schreck_agenda_and_locations_merged_cricles) +
+  geom_sf(
+    data = schreck_agenda_and_locations_merged, 
+    mapping = aes(color = paste(id, "|", "on:", datum_on, "|", "off:", datum_off))
+    ) +
+  annotation_scale() +
+  coord_sf(datum=st_crs(2056)) +
+  labs(color = 'Schreck ID | Date On | Date Off', title = "Radius: 250 m")
+```
+## Data Analysis for Research Question 1
+To get an impression if the scare offs influences the occurrence of wild boars and how is the range of the effect, we designed a function. The function `draw_density_plot(schreck_id, radii, days_before, days_after)` is used to filter the data by observation radius and time for one scare off to then plot it as a density function. Thereby, the time period of days before and after the event can be set, while the time period during the event is given by the scare off agenda. 
+```{r, message = FALSE, warning = FALSE}
+# Create function that can automatically draw a denstiy plot for a specific schreck location 
+# & specify number of days before and after schreck event that should appear on plot
+# & specify the radii around schreck location
+draw_density_plot <- function(schreck_id, radii, days_before, days_after) {
+  # Filter schreck agenda to specific schreck
+  specific_schreck <- schreck_agenda_and_locations_merged %>%
+    filter(id == schreck_id)
+  
+  # Filter all wildschwein points by date to only ones occuring within above-mentioned schreck event (7 days before, during and 21 days after)
+  specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
+    filter(
+      DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
+      DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
+    )
+  
+  # For each radius (x) in radii... (this creates a vector with one SF data frame per radius in radii)
+  schreck_specific_wildschwein_points <- radii %>% map(
+    .f = function(x){
+      # ... Create a circle / buffer with radius x around schreck 
+      circle <- st_buffer(specific_schreck, x)
+      # ... Filter all date-relevant wildschwin points to the ones in circle with radius x
+      pigs_in_circle <- st_filter(specific_schreck_wildschwein, circle)
+      # ... Add some convenience variables (radius and date) in order to visualize the density plots
+      pigs_in_circle <- pigs_in_circle %>%
+        mutate(
+          radius = as.factor(x),
+          date = as.Date(DatetimeUTC)
+        )
+      # ... return SF Data frame with the relevant pigs for radius x
+      return(pigs_in_circle)
+    }
+  )
+    # Combine all the SF data frames in schreck_specific_wildschwein_points to a singular data frame with variable 'radius'
+  combined_wildschwein_points <- bind_rows(schreck_specific_wildschwein_points)
+  
+  
+  # Plot the number of wildschwein per day within each schreck buffer for the specified dates
+  combined_wildschwein_points %>%
+    ggplot() +
+    geom_density(mapping = aes(x = date, color = radius)) +
+    # Then add 2 lines to signify start and end off schreck event
+    geom_vline(xintercept =  as.Date(specific_schreck$datum_on), linetype="dotted", color = "blue", size = 1.5) +
+    geom_vline(xintercept =  as.Date(specific_schreck$datum_off), linetype="dotted", color = "blue", size = 1.5) +
+    labs(
+      title = schreck_id, 
+      subtitle = paste(
+        "GPS Points:", nrow(combined_wildschwein_points),
+        "|",
+        "Schreck Duration:", (difftime(as.Date(specific_schreck$datum_off), as.Date(specific_schreck$datum_on), units = "days")),
+        "days"
+      )
+    )
+}
 ```
 
 
+# Results
+## Research Question 1: Effect of scare off on wild boar occurance
+The wild boar occurence shows different patterns for each scare off event ( *Figure 3*). The number of GPS point for each event ranges from 178 (WSS_2016_05) to above 10'000 points (WSS_2016_05). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100m, 200m or 400m radius. However the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact in for WSS_2016_01 observation.
+In a further step of exploratory data analysis we created interactive maps for two scare off events: one with the expected results (*Map 2*) and on with the opposite results (*Map 2*).
+
+*Figure 3: Density plots for each scare off event, 10 days before and 14 days after event*
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(100, 200, 400), 10, 14)
+
+WSS_2015_03_plot <- draw_density_plot("WSS_2015_03", c(100, 200, 400), 10, 14)
+
+WSS_2015_04_plot <- draw_density_plot("WSS_2015_04", c(100, 200, 400), 10, 14)
+
+WSS_2016_01_plot <- draw_density_plot("WSS_2016_01", c(100, 200, 400), 10, 14)
+
+WSS_2016_05_plot <- draw_density_plot("WSS_2016_05", c(100, 200, 400), 10, 14)
+
+WSS_2016_06_plot <- draw_density_plot("WSS_2016_06", c(100, 200, 400), 10, 14)
+
+WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", c(100, 200, 400), 10, 14)
+
+plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot, nrow = 3)
+```
+
+*Map 1: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event*
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# Create an interactive map with the Wildschwein Locations and the Schreck Location for one specific Schreck
+
+#WSS_2015_01
+  # Filter schreck agenda to specific schreck
+  specific_schreck15_01 <- schreck_agenda_and_locations_merged %>%
+    filter(id == "WSS_2015_01")
+  
+  # Draw a circle around that schreck
+  specific_schreck_circle15_01 <- st_buffer(specific_schreck15_01, dist = 500)
+  
+  # Filter wildschwein points by date to only ones occuring within     above-mentioned schreck event (10 days before, during and 14 days after)
+  specific_schreck_wildschwein15_01 <- wildschwein_BE_sf_cropped %>%
+    filter(
+      DatetimeUTC > as.Date(specific_schreck15_01$datum_on) - 10,
+      DatetimeUTC < as.Date(specific_schreck15_01$datum_off) + 14
+    )
+  
+  # Filter the above-mentioned wildschwein points to ones within the schreck circle
+  specific_schreck_wildschwein_cropped15_01 <- specific_schreck_wildschwein15_01 %>%
+    st_filter(specific_schreck_circle15_01)
+  
+  # Create a new convenience variable (date, without time)
+  specific_schreck_wildschwein_cropped15_01 <- specific_schreck_wildschwein_cropped15_01 %>%
+    mutate(
+      date = as.Date(DatetimeUTC)
+    )
+  
+  # Convert back to lon/lat format (WGS83), otherwise leaflet doesn't work
+  wildschwein_4326_15_01 <- st_transform(specific_schreck_wildschwein_cropped15_01, crs = 4326)
+ 
+  specific_schreck_4326_15_01 <- st_transform(specific_schreck15_01, crs = 4326)
+ 
+  
+  leaflet(data = specific_schreck_4326_15_01) %>%
+    addTiles() %>%
+    addCircleMarkers() %>%
+    addTimeslider(data = wildschwein_4326_15_01,
+                  options = timesliderOptions(
+                    position = "topright",
+                    timeAttribute = "DatetimeUTC",
+                    sameDate = TRUE,
+                    alwaysShowDate = TRUE)) %>%
+    setView(-72, 22, 4)
+```
+
+*Map 2: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event*
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+##WSS_2016_01
+  # Filter schreck agenda to specific schreck
+  specific_schreck16_01 <- schreck_agenda_and_locations_merged %>%
+    filter(id == "WSS_2016_01")
+  
+  # Draw a circle around that schreck
+  specific_schreck_circle16_01 <- st_buffer(specific_schreck16_01, dist = 200)
+  
+  # Filter wildschwein points by date to only ones occuring within     above-mentioned schreck event (10 days before, during and 14 days after)
+  specific_schreck_wildschwein16_01 <- wildschwein_BE_sf_cropped %>%
+    filter(
+      DatetimeUTC > as.Date(specific_schreck16_01$datum_on) - 10,
+      DatetimeUTC < as.Date(specific_schreck16_01$datum_off) + 14
+    )
+  
+  # Filter the above-mentioned wildschwein points to ones within the schreck circle
+  specific_schreck_wildschwein_cropped16_01 <- specific_schreck_wildschwein16_01 %>%
+    st_filter(specific_schreck_circle16_01)
+  
+  # Create a new convenience variable (date, without time)
+  specific_schreck_wildschwein_cropped16_01 <- specific_schreck_wildschwein_cropped16_01 %>%
+    mutate(
+      date = as.Date(DatetimeUTC)
+    )
+  
+  # Convert back to lon/lat format (WGS83), otherwise leaflet doesn't work
+  wildschwein_4326_16_01 <- st_transform(specific_schreck_wildschwein_cropped16_01, crs = 4326)
+ 
+  specific_schreck_4326_16_01 <- st_transform(specific_schreck16_01, crs = 4326)
+ 
+  leaflet(data = specific_schreck_4326_16_01) %>%
+    addTiles() %>%
+    addCircleMarkers() %>%
+    addTimeslider(data = wildschwein_4326_16_01,
+                  options = timesliderOptions(
+                    position = "topright",
+                    timeAttribute = "DatetimeUTC",
+                    sameDate = TRUE,
+                    alwaysShowDate = TRUE)) %>%
+    setView(-72, 22, 4)
+```
+To be continued
+# Discussion
+coming soon
 
 
-
-## Material and Methods
-
-<!-- the following is just a placeholder text, remove it!-->
-Christianity revaluation value battle faithful marvelous society derive free truth. Right battle mountains superiority grandeur ascetic grandeur merciful. Derive against intentions burying salvation ocean. Right intentions dead victorious ideal spirit evil ultimate joy. Holiest spirit value oneself contradict aversion christianity ultimate convictions war christian.
-
-## Results
-
-<!-- the following is just a placeholder text, remove it!-->
-Philosophy oneself passion play fearful self noble zarathustra deceptions sexuality. Endless ocean of oneself dead ocean. Selfish decrepit.
-
-## Discussion
-
-<!-- the following is just a placeholder text, remove it!-->
-Justice convictions spirit sexuality insofar free marvelous joy. Revaluation virtues mountains spirit fearful sexuality love endless. Society intentions will noble burying aversion moral. Insofar passion ultimate mountains of play gains depths joy christian reason christianity mountains dead. Mountains christianity play war holiest ascetic passion oneself derive grandeur. Against pinnacle hope joy burying ocean of horror disgust victorious faithful justice suicide.
-
+# References
