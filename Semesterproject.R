@@ -231,11 +231,11 @@ ggplot() +
   # Draw a circle around that schreck
   specific_schreck_circle <- st_buffer(specific_schreck, dist = 500)
   
-  # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event (7 days before, during and 21 days after)
+  # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event (10 days before, during and 14 days after)
   specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
     filter(
       DatetimeUTC > as.Date(specific_schreck$datum_on) - 10,
-      DatetimeUTC < as.Date(specific_schreck$datum_off) + 10
+      DatetimeUTC < as.Date(specific_schreck$datum_off) + 14
     )
   
   # Filter the above-mentioned wildschwein points to ones within the schreck circle

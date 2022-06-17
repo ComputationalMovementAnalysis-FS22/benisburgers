@@ -1,3 +1,8 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
 # Proposal for Semester Project
 
 **Patterns & Trends in Environmental Data / Computational Movement
