@@ -9,6 +9,8 @@ library(leaflet.extras2)
 library(gganimate)
 library(ggspatial)
 library(cowplot)
+library(multcompView)
+
 
 wildschwein_BE
 wildschwein_metadata
@@ -313,7 +315,63 @@ ggplot() +
     ggplot(mapping = aes(x = period, y = total_per_day)) +
     geom_boxplot() +
     labs(
-      x= "Period in relation to Schreck Event",
+      x = "Period in relation to Schreck Event",
       y = "# of GPS points within buffer zone per day (r = 100m)"
     )
+  
+  
+  
+  # Tukey-Test (anova with boxplot)
+  
+  # Estimate the effect of the period on the number of WS GPS Points per day:
+  model <- lm(wildschwein_per_day$total_per_day ~ wildschwein_per_day$period)
+  summary(model)
+  anova <- aov(model)
+  summary(anova)
+  
+  # Tukey test to study each pair of period:
+  tukey <- TukeyHSD(x = anova, 'wildschwein_per_day$period', conf.level = 0.95)
+  
+  
+  # Visually represent tukey test:
+  
+  # Group the treatments that are not different each other together.
+  generate_label_df <- function(tukey, variable){
+    
+    # Extract labels and factor levels from Tukey post-hoc 
+    Tukey.levels <- tukey[[variable]][,4]
+    Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
+    
+    #I need to put the labels in the same order as in the boxplot :
+    Tukey.labels$period = rownames(Tukey.labels)
+    Tukey.labels = Tukey.labels[order(Tukey.labels$period) , ]
+    return(Tukey.labels)
+  }
+
+  # Apply the function to the dataset
+  labels <- generate_label_df(tukey , "wildschwein_per_day$period")
+  labels
+  
+  wildschwein_per_day <- wildschwein_per_day %>%
+    left_join(labels, by = "period")
+  
+  wildschwein_per_day
+  
+  gg_labels <- wildschwein_per_day %>%
+    group_by(period, Letters) %>%
+    summarise(
+      height = max(total_per_day)
+    )
+  
+  wildschwein_per_day %>%
+    ggplot(mapping = aes(x = period, y = total_per_day, )) +
+    geom_boxplot() +
+    ylim(NA, 1.1 * max(wildschwein_per_day$total_per_day)) +
+    labs(
+      x = "Period in relation to Schreck Event",
+      y = "# of GPS points within buffer zone per day (r = 100m)"
+    ) + 
+    geom_text(data = gg_labels,
+              aes(x = period, y = height, label = Letters),
+              vjust = -1.5, hjust = "inward")
   
