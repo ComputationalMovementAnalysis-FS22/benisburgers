@@ -277,5 +277,43 @@ ggplot() +
     filter(
       id == "WSS_2015_01"
     )
+  
 
+  # Geom Boxplot (Number of gps points per day for one schreck buffer zone)
+  specific_schreck_circle <- st_buffer(specific_schreck, dist = 100)
+  
+  wildschwein_in_circle <- wildschwein_BE_sf_cropped %>%
+    st_filter(specific_schreck_circle)
+  
+  ggplot() +
+    geom_sf(data = specific_schreck_circle) +
+    geom_sf(data = wildschwein_in_circle)
+  
+  wildschwein_in_circle <- wildschwein_in_circle %>%
+    mutate(
+      date = as.Date(DatetimeUTC),
+      period = 
+        ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
+               ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
+                      "DURING")))
+  
+  wildschwein_per_day <- wildschwein_in_circle %>%
+    st_drop_geometry() %>%
+    group_by(date, period) %>%
+    summarise(
+      total_per_day = n()
+    ) %>%
+    mutate(
+      period = factor(period, levels = c("BEFORE", "DURING", "AFTER")) 
+    )
+  
+  wildschwein_per_day
+  
+  wildschwein_per_day %>%
+    ggplot(mapping = aes(x = period, y = total_per_day)) +
+    geom_boxplot() +
+    labs(
+      x= "Period in relation to Schreck Event",
+      y = "# of GPS points within buffer zone per day (r = 100m)"
+    )
   
