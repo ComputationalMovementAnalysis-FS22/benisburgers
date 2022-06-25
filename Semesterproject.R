@@ -223,7 +223,7 @@ ggplot() +
   labs(color = 'Schreck ID | Date On | Date Off', title = "Radius: 250 m")
 
 
-# Play around with leaflet: Create an interactive map with the Wildschwein Locations and the Schreck Location for one specific Schreck
+  #### Play around with leaflet: Interactive map with the Wildschwein Locations and the Schreck Location for one specific Schreck ####
 
   # Filter schreck agenda to specific schreck
   specific_schreck <- schreck_agenda_and_locations_merged %>%
@@ -274,104 +274,95 @@ ggplot() +
                     sameDate = TRUE,
                     alwaysShowDate = TRUE)) %>%
     setView(-72, 22, 4)
+  
+  
+  #### Model, Tukey-Test and Plot as a function ####
 
-  schreck_agenda %>%
-    filter(
-      id == "WSS_2015_01"
-    )
-  
-
-  # Geom Boxplot (Number of gps points per day for one schreck buffer zone)
-  specific_schreck_circle <- st_buffer(specific_schreck, dist = 100)
-  
-  wildschwein_in_circle <- wildschwein_BE_sf_cropped %>%
-    st_filter(specific_schreck_circle)
-  
-  ggplot() +
-    geom_sf(data = specific_schreck_circle) +
-    geom_sf(data = wildschwein_in_circle)
-  
-  wildschwein_in_circle <- wildschwein_in_circle %>%
-    mutate(
-      date = as.Date(DatetimeUTC),
-      period = 
-        ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
-               ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
-                      "DURING")))
-  
-  wildschwein_per_day <- wildschwein_in_circle %>%
-    st_drop_geometry() %>%
-    group_by(date, period) %>%
-    summarise(
-      total_per_day = n()
-    ) %>%
-    mutate(
-      period = factor(period, levels = c("BEFORE", "DURING", "AFTER")) 
-    )
-  
-  wildschwein_per_day
-  
-  wildschwein_per_day %>%
-    ggplot(mapping = aes(x = period, y = total_per_day)) +
-    geom_boxplot() +
-    labs(
-      x = "Period in relation to Schreck Event",
-      y = "# of GPS points within buffer zone per day (r = 100m)"
-    )
-  
-  
-  
-  # Tukey-Test (anova with boxplot)
-  
-  # Estimate the effect of the period on the number of WS GPS Points per day:
-  model <- lm(wildschwein_per_day$total_per_day ~ wildschwein_per_day$period)
-  summary(model)
-  anova <- aov(model)
-  summary(anova)
-  
-  # Tukey test to study each pair of period:
-  tukey <- TukeyHSD(x = anova, 'wildschwein_per_day$period', conf.level = 0.95)
-  
-  
-  # Visually represent tukey test:
-  
-  # Group the treatments that are not different each other together.
+  # Extract labels and factor levels from Tukey post-hoc 
   generate_label_df <- function(tukey, variable){
-    
-    # Extract labels and factor levels from Tukey post-hoc 
     Tukey.levels <- tukey[[variable]][,4]
     Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
-    
-    #I need to put the labels in the same order as in the boxplot :
     Tukey.labels$period = rownames(Tukey.labels)
     Tukey.labels = Tukey.labels[order(Tukey.labels$period) , ]
     return(Tukey.labels)
   }
 
-  # Apply the function to the dataset
-  labels <- generate_label_df(tukey , "wildschwein_per_day$period")
-  labels
+  # Function which generates model, anova, post-hoc tukey test and a boxplot for specified schreck and radius
+  anova_for_schreck <- function(schreck_id, radius) {
+    
+    # Filter schreck agenda to specific schreck
+    specific_schreck <- schreck_agenda_and_locations_merged %>%
+        filter(id == schreck_id)
+    
+    # Create buffer zone with radius around specific schreck
+    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
+    
+    # Filter out only the wild boar within the buffer zone
+    wildschwein_in_circle <- wildschwein_BE_sf_cropped %>%
+      st_filter(specific_schreck_circle) %>%
+      mutate(
+        date = as.Date(DatetimeUTC),
+        period = 
+          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
+                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
+                        "DURING")))
+    
+    # Group the gps points by day
+    wildschwein_per_day <- wildschwein_in_circle %>%
+      st_drop_geometry() %>%
+      group_by(date, period) %>%
+      summarise(
+        total_per_day = n()
+      )
+    
+    # Estimate the effect of the period on the number of WS GPS Points per day:
+    model <- lm(wildschwein_per_day$total_per_day ~ wildschwein_per_day$period)
+    anova <- aov(model)
+    
+    # Tukey test to study each pair of period:
+    tukey <- TukeyHSD(x = anova, 'wildschwein_per_day$period', conf.level = 0.95)
+    
+    # Apply the function to the dataset
+    labels <- generate_label_df(tukey , "wildschwein_per_day$period")
+    
+    wildschwein_per_day <- wildschwein_per_day %>%
+      left_join(labels, by = "period")
+    
+    wildschwein_per_day <- wildschwein_per_day %>%
+      mutate(
+        period = factor(period, levels = c("BEFORE", "DURING", "AFTER")) 
+      )
+    
+    gg_labels <- wildschwein_per_day %>%
+      group_by(period, Letters) %>%
+      summarise(
+        height = max(total_per_day)
+      )
+    
+    
+    print(str(wildschwein_per_day))
+    
+    p <- wildschwein_per_day %>%
+      ggplot() +
+      geom_boxplot(mapping = aes(x = period, y = total_per_day)) +
+      ylim(NA, 1.1 * max(wildschwein_per_day$total_per_day)) +
+      labs(
+        x = "Period in relation to Schreck Event",
+        y = "# of GPS points within buffer zone per day (r = 100m)"
+      ) + 
+      geom_text(data = gg_labels,
+                aes(x = period, y = height, label = Letters),
+                vjust = -1.5, hjust = "inward")
+    
+    returnedList <- list("model" = model, "anova" = anova, "wildschwein_per_day" = wildschwein_per_day, "plot" = p)
+    
+  }
   
-  wildschwein_per_day <- wildschwein_per_day %>%
-    left_join(labels, by = "period")
+  # Run above function for schreck WSS_2015_01
+  WSS_2015_01_package <- anova_for_schreck("WSS_2015_01", 100)
+  summary(WSS_2015_01_package$model)
+  summary(WSS_2015_01_package$anova)
+  WSS_2015_01_package$wildschwein_per_day
+  WSS_2015_01_package$plot
   
-  wildschwein_per_day
-  
-  gg_labels <- wildschwein_per_day %>%
-    group_by(period, Letters) %>%
-    summarise(
-      height = max(total_per_day)
-    )
-  
-  wildschwein_per_day %>%
-    ggplot(mapping = aes(x = period, y = total_per_day, )) +
-    geom_boxplot() +
-    ylim(NA, 1.1 * max(wildschwein_per_day$total_per_day)) +
-    labs(
-      x = "Period in relation to Schreck Event",
-      y = "# of GPS points within buffer zone per day (r = 100m)"
-    ) + 
-    geom_text(data = gg_labels,
-              aes(x = period, y = height, label = Letters),
-              vjust = -1.5, hjust = "inward")
   
