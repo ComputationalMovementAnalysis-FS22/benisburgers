@@ -273,6 +273,7 @@ generate_interactive_map <- function(schreck_id, radius, days_before, days_after
 generate_interactive_map("WSS_2015_01", 500, 10, 10)
 
   
+
 #### Model, Tukey-Test and Plot as a function ####
 
   # Extract labels and factor levels from Tukey post-hoc 
