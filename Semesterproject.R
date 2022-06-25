@@ -1,4 +1,4 @@
-# Install libraries & download data
+#### Install libraries & download data ####
 
 library(tidyverse)
 devtools::install_github("ComputationalMovementAnalysis/ComputationalMovementAnalysisData")
@@ -12,6 +12,8 @@ library(cowplot)
 library(multcompView)
 
 
+#### Initial look at the data ####
+
 wildschwein_BE
 wildschwein_metadata
 wildschwein_overlap_temp
@@ -20,9 +22,8 @@ schreck_agenda
 schreck_locations
 
 
-# Exploratory Data Analysis
 
-## Convert data to sf formats
+#### Convert data to sf formats ####
 
 schreck_locations
 schreck_locations_sf <- st_as_sf(schreck_locations,
@@ -36,13 +37,15 @@ wildschwein_BE_sf <- st_as_sf(wildschwein_BE,
                                  crs = 2056)
 wildschwein_BE_sf
 
-### Convert schreck_locations_sf from crs 4326 (WGS84) to crs 2056 (CH1903+ / LV95)
+
+#### Convert schreck_locations_sf from crs 4326 (WGS84) to crs 2056 (CH1903+ / LV95) ####
 
 schreck_locations_sf <- st_transform(schreck_locations_sf, crs = 2056)
 schreck_locations_sf
 
 
-## Visualize the data (schreck and wildschwein locations)
+
+#### Visualize the data (schreck and wildschwein locations) ####
 
 ggplot() +
   geom_sf(data = wildschwein_BE_sf, colour = "blue") +
@@ -51,7 +54,8 @@ ggplot() +
   coord_sf(datum=st_crs(2056))
 
 
-# Crop both sf data frames (wildschwein & schreck locations) to only show area with significant overlap
+
+#### Crop both sf data frames (wildschwein & schreck locations) to only show area with significant overlap ####
 
 wildschwein_BE_sf_cropped <- st_crop(wildschwein_BE_sf, xmin = 2560000, xmax = 2580000, ymin = 1200000, ymax = 1220000)
 schreck_locations_sf_cropped <- st_crop(schreck_locations_sf, xmin = 2560000, xmax = 2580000, ymin = 1200000, ymax = 1220000)
@@ -73,7 +77,8 @@ ggplot() +
   coord_sf(datum=st_crs(2056))
 
 
-# Try to visualize the shreck events
+
+#### Try to visualize the shreck events ####
 
 # First step: Join the schreck locations with the schreck events
 
@@ -106,7 +111,9 @@ ggplot() +
   annotation_scale() +
   coord_sf(datum=st_crs(2056))
 
-### Density plots for number of GPS points within radius around each schreck location over a certain number of days before, during and after schreck events ###
+
+
+#### Create function that can automatically draw a denstiy plot for a specific schreck location ####
 
 # Filter Schreck-Agenda to the times when we have Wildschwein Data
 schreck_agenda_and_locations_filtered <- schreck_agenda_and_locations %>%
@@ -125,10 +132,6 @@ schreck_agenda_and_locations_merged <- schreck_agenda_and_locations_filtered %>%
   )
 schreck_agenda_and_locations_merged
 
-
-# Create function that can automatically draw a denstiy plot for a specific schreck location 
-# & specify number of days before and after schreck event that should appear on plot
-# & specify the radii around schreck location
 draw_density_plot <- function(schreck_id, radii, days_before, days_after) {
   # Filter schreck agenda to specific schreck
   specific_schreck <- schreck_agenda_and_locations_merged %>%
@@ -207,7 +210,8 @@ WSS_2016_13_plot
 plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot)
 
 
-# Show how the circles lie over each other to determine whether to combine some Schreck-Locations
+
+#### Show how the circles lie over each other to determine whether to combine some Schreck-Locations #### 
 
 schreck_agenda_and_locations_merged_cricles <- st_buffer(schreck_agenda_and_locations_merged, 250)
 schreck_agenda_and_locations_merged_cricles
@@ -223,7 +227,8 @@ ggplot() +
   labs(color = 'Schreck ID | Date On | Date Off', title = "Radius: 250 m")
 
 
-  #### Play around with leaflet: Interactive map with the Wildschwein Locations and the Schreck Location for one specific Schreck ####
+
+#### Play around with leaflet: Interactive map with the Wildschwein Locations and the Schreck Location for one specific Schreck ####
 
   # Filter schreck agenda to specific schreck
   specific_schreck <- schreck_agenda_and_locations_merged %>%
@@ -276,7 +281,8 @@ ggplot() +
     setView(-72, 22, 4)
   
   
-  #### Model, Tukey-Test and Plot as a function ####
+  
+#### Model, Tukey-Test and Plot as a function ####
 
   # Extract labels and factor levels from Tukey post-hoc 
   generate_label_df <- function(tukey, variable){
