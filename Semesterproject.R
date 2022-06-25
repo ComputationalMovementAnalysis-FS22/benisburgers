@@ -10,6 +10,8 @@ library(gganimate)
 library(ggspatial)
 library(cowplot)
 library(multcompView)
+library(transformr)
+library(geojsonsf)
 
 
 #### Initial look at the data ####
@@ -228,59 +230,48 @@ ggplot() +
 
 
 
-#### Play around with leaflet: Interactive map with the Wildschwein Locations and the Schreck Location for one specific Schreck ####
+#### Generate interactive map with the Wildschwein Locations and the Schreck Location for one specific Schreck ####
 
-  # Filter schreck agenda to specific schreck
+generate_interactive_map <- function(schreck_id, radius, days_before, days_after) {
+  
   specific_schreck <- schreck_agenda_and_locations_merged %>%
-    filter(id == "WSS_2015_01")
-  specific_schreck
+    # Filter schreck agenda to specific schreck
+    filter(id == schreck_id)
   
   # Draw a circle around that schreck
-  specific_schreck_circle <- st_buffer(specific_schreck, dist = 500)
+  specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
   
-  # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event (10 days before, during and 14 days after)
   specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
+    # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
     filter(
-      DatetimeUTC > as.Date(specific_schreck$datum_on) - 10,
-      DatetimeUTC < as.Date(specific_schreck$datum_off) + 14
-    )
-  
-  # Filter the above-mentioned wildschwein points to ones within the schreck circle
-  specific_schreck_wildschwein_cropped <- specific_schreck_wildschwein %>%
-    st_filter(specific_schreck_circle)
-  
-  # Create a new convenience variable (date, without time)
-  specific_schreck_wildschwein_cropped <- specific_schreck_wildschwein_cropped %>%
+      DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
+      DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
+    ) %>%
+    # Filter the above-mentioned wildschwein points to ones within the schreck circle
+    st_filter(specific_schreck_circle) %>%
+    # Create a new convenience variable (date, without time) 
     mutate(
       date = as.Date(DatetimeUTC)
     )
   
-  view(specific_schreck_wildschwein_cropped)
-  
-  ggplot(specific_schreck_wildschwein_cropped) +
-    geom_sf(aes(group = date)) +
-    transition_time(date)
-  
   # Convert back to lon/lat format (WGS83), otherwise leaflet doesn't work
-  
-  wildschwein_4326 <- st_transform(specific_schreck_wildschwein_cropped, crs = 4326)
-  wildschwein_4326
-  
-  specific_schreck_4326 <- st_transform(specific_schreck, crs = 4326)
-  specific_schreck_4326
+  specific_schreck <- st_transform(specific_schreck, crs = 4326)
+  specific_schreck_wildschwein <- st_transform(specific_schreck_wildschwein, crs = 4326)
   
   leaflet(data = specific_schreck_4326) %>%
     addTiles() %>%
     addCircleMarkers() %>%
-    addTimeslider(data = wildschwein_4326,
+    addTimeslider(data = specific_schreck_wildschwein,
                   options = timesliderOptions(
                     position = "topright",
                     timeAttribute = "DatetimeUTC",
                     sameDate = TRUE,
                     alwaysShowDate = TRUE)) %>%
-    setView(-72, 22, 4)
-  
-  
+    setView(bbox[1], bbox[2], zoom = 15)
+}
+
+generate_interactive_map("WSS_2015_01", 500, 10, 10)
+
   
 #### Model, Tukey-Test and Plot as a function ####
 
