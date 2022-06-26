@@ -63,6 +63,7 @@ library(gganimate)
 library(ggspatial)
 library(cowplot)
 library(knitr)
+library(multcompView)
 ```
 Data used for this project was provided from the module supervisors. Used was a dataset of wild boar locations with time stamps (*Table 1*; wildschwein_BE), a set with the location of the scare offs (*Table 2*; schreck_location) and a third set including the data when the scare offs were on/off with additional information about parameter settings. (*Table 3*; schreck_agenda). The wild boar location was sampled in 15 min intervals while for the scare off events we have data of the date of on/off but no further time information. The scare off settings can be adjusted for two different modes (standard v1 and aggressive v2), volume (a range of 33 - 100), interval (12.5 - 30), max. and min. orientation (0-330).
 
@@ -251,6 +252,104 @@ knitr::include_url("p_WSS_2015_01.html")
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
 knitr::include_url("p_WSS_2016_01.html")
 ```
+
+*Box Plot with Tukey's Post-Hoc Test (ANOVA) 1: Number of GPS locations per day within the buffer zon before, during and after the scheck event*
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+  # Extract labels and factor levels from Tukey post-hoc 
+  generate_label_df <- function(tukey, variable){
+    Tukey.levels <- tukey[[variable]][,4]
+    Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
+    Tukey.labels$period = rownames(Tukey.labels)
+    Tukey.labels = Tukey.labels[order(Tukey.labels$period) , ]
+    return(Tukey.labels)
+  }
+
+  # Function which generates model, anova, post-hoc tukey test and a boxplot for specified schreck and radius
+  anova_for_schreck <- function(schreck_id, radius) {
+    
+    # Filter schreck agenda to specific schreck
+    specific_schreck <- schreck_agenda_and_locations_merged %>%
+        filter(id == schreck_id)
+    
+    # Create buffer zone with radius around specific schreck
+    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
+    
+    # Filter out only the wild boar within the buffer zone
+    wildschwein_in_circle <- wildschwein_BE_sf_cropped %>%
+      st_filter(specific_schreck_circle) %>%
+      mutate(
+        date = as.Date(DatetimeUTC),
+        period = 
+          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
+                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
+                        "DURING")))
+    
+    # Group the gps points by day
+    wildschwein_per_day <- wildschwein_in_circle %>%
+      st_drop_geometry() %>%
+      group_by(date, period) %>%
+      summarise(
+        total_per_day = n()
+      )
+    
+    # Estimate the effect of the period on the number of WS GPS Points per day:
+    model <- lm(wildschwein_per_day$total_per_day ~ wildschwein_per_day$period)
+    anova <- aov(model)
+    
+    # Tukey test to study each pair of period:
+    tukey <- TukeyHSD(x = anova, 'wildschwein_per_day$period', conf.level = 0.95)
+    
+    # Apply the function to the dataset
+    labels <- generate_label_df(tukey , "wildschwein_per_day$period")
+    
+    wildschwein_per_day <- wildschwein_per_day %>%
+      left_join(labels, by = "period")
+    
+    wildschwein_per_day <- wildschwein_per_day %>%
+      mutate(
+        period = factor(period, levels = c("BEFORE", "DURING", "AFTER")) 
+      )
+    
+    gg_labels <- wildschwein_per_day %>%
+      group_by(period, Letters) %>%
+      summarise(
+        height = max(total_per_day)
+      )
+    
+    p <- wildschwein_per_day %>%
+      ggplot() +
+      geom_boxplot(mapping = aes(x = period, y = total_per_day)) +
+      ylim(NA, 1.1 * max(wildschwein_per_day$total_per_day)) +
+      labs(
+        x = "Period in relation to Schreck Event",
+        y = "# of GPS points within buffer zone per day"
+      ) + 
+      geom_text(data = gg_labels,
+                aes(x = period, y = height, label = Letters),
+                vjust = -1.5, hjust = "inward")
+    
+    returnedList <- list("model" = model, "anova" = anova, "wildschwein_per_day" = wildschwein_per_day, "plot" = p)
+    
+  }
+```
+
+
+*Schreck-ID: WSS_2016_01, Radius: 200m*
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+# Run above function for schreck WSS_2016_01
+  WSS_2016_01_package <- anova_for_schreck("WSS_2016_01", 100)
+  summary(WSS_2016_01_package$anova)
+  WSS_2016_01_package$plot
+```
+
+*Schreck-ID: WSS_2016_05, Radius: 200m*
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+# Run above function for schreck WSS_2016_01
+  WSS_2016_05_package <- anova_for_schreck("WSS_2016_05", 100)
+  summary(WSS_2016_05_package$anova)
+  WSS_2016_05_package$plot
+```
+
 
 To be continued
 # Discussion
