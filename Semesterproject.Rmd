@@ -243,6 +243,7 @@ plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot
 
 *Map 1: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event*
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
+# The reason why we imported the leaflet widgets as html files, instead of running the code in the markdown file has do to with the fact that the leaflet timeslider seems to fail when we present more than 1 interactive map. If you want to see how these maps are generated, please have a look at the Semesterproject.R file (generate_interactive_map)
 knitr::include_url("p_WSS_2015_01.html")
 ```
 
