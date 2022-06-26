@@ -29,16 +29,14 @@ schreck_locations
 
 schreck_locations
 schreck_locations_sf <- st_as_sf(schreck_locations,
-  coords = c("lon", "lat"),
-  crs = 4326
-)
+                                 coords = c("lon", "lat"),
+                                 crs = 4326)
 schreck_locations_sf
 
 wildschwein_BE
 wildschwein_BE_sf <- st_as_sf(wildschwein_BE,
-  coords = c("E", "N"),
-  crs = 2056
-)
+                                 coords = c("E", "N"),
+                                 crs = 2056)
 wildschwein_BE_sf
 
 
@@ -55,7 +53,7 @@ ggplot() +
   geom_sf(data = wildschwein_BE_sf, colour = "blue") +
   geom_sf(data = schreck_locations_sf, colour = "red", alpha = 0.5) +
   annotation_scale() +
-  coord_sf(datum = st_crs(2056))
+  coord_sf(datum=st_crs(2056))
 
 
 
@@ -67,18 +65,18 @@ schreck_locations_sf_cropped <- st_crop(schreck_locations_sf, xmin = 2560000, xm
 ggplot() +
   geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue") +
   annotation_scale() +
-  coord_sf(datum = st_crs(2056))
+  coord_sf(datum=st_crs(2056))
 
 ggplot() +
   geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5) +
   annotation_scale() +
-  coord_sf(datum = st_crs(2056))
+  coord_sf(datum=st_crs(2056))
 
 ggplot() +
   geom_sf(data = wildschwein_BE_sf_cropped, colour = "blue") +
   geom_sf(data = schreck_locations_sf_cropped, colour = "red", alpha = 0.5) +
   annotation_scale() +
-  coord_sf(datum = st_crs(2056))
+  coord_sf(datum=st_crs(2056))
 
 
 
@@ -98,7 +96,7 @@ view(schreck_agenda_and_locations)
 
 schreck_agenda_and_locations_daily <- schreck_agenda_and_locations %>%
   mutate(activeDay = map2(datum_on, datum_off, seq, by = "1 day")) %>%
-  unnest()
+  unnest
 view(schreck_agenda_and_locations_daily)
 
 # Try to visualize these events somehow
@@ -106,14 +104,14 @@ view(schreck_agenda_and_locations_daily)
 ggplot(data = schreck_agenda_and_locations_daily) +
   geom_sf(mapping = aes(color = id)) +
   annotation_scale() +
-  coord_sf(datum = st_crs(2056))
+  coord_sf(datum=st_crs(2056))
 
 ggplot() +
   geom_sf(data = schreck_agenda_and_locations_daily, mapping = aes(color = id)) +
   transition_manual(activeDay) +
-  labs(title = "Values at {(current_frame)}") +
+  labs(title = 'Values at {(current_frame)}') +
   annotation_scale() +
-  coord_sf(datum = st_crs(2056))
+  coord_sf(datum=st_crs(2056))
 
 
 
@@ -140,18 +138,18 @@ draw_density_plot <- function(schreck_id, radii, days_before, days_after) {
   # Filter schreck agenda to specific schreck
   specific_schreck <- schreck_agenda_and_locations_merged %>%
     filter(id == schreck_id)
-
+  
   # Filter all wildschwein points by date to only ones occuring within above-mentioned schreck event (7 days before, during and 21 days after)
   specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
     filter(
       DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
       DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
     )
-
+  
   # For each radius (x) in radii... (this creates a vector with one SF data frame per radius in radii)
   schreck_specific_wildschwein_points <- radii %>% map(
-    .f = function(x) {
-      # ... Create a circle / buffer with radius x around schreck
+    .f = function(x){
+      # ... Create a circle / buffer with radius x around schreck 
       circle <- st_buffer(specific_schreck, x)
       # ... Filter all date-relevant wildschwin points to the ones in circle with radius x
       pigs_in_circle <- st_filter(specific_schreck_wildschwein, circle)
@@ -165,20 +163,20 @@ draw_density_plot <- function(schreck_id, radii, days_before, days_after) {
       return(pigs_in_circle)
     }
   )
-
+  
   # Combine all the SF data frames in schreck_specific_wildschwein_points to a singular data frame with variable 'radius'
   combined_wildschwein_points <- bind_rows(schreck_specific_wildschwein_points)
-
-
+  
+  
   # Plot the number of wildschwein per day within each schreck buffer for the specified dates
   combined_wildschwein_points %>%
     ggplot() +
     geom_density(mapping = aes(x = date, color = radius)) +
     # Then add 2 lines to signify start and end off schreck event
-    geom_vline(xintercept = as.Date(specific_schreck$datum_on), linetype = "dotted", color = "blue", size = 1.5) +
-    geom_vline(xintercept = as.Date(specific_schreck$datum_off), linetype = "dotted", color = "blue", size = 1.5) +
+    geom_vline(xintercept =  as.Date(specific_schreck$datum_on), linetype="dotted", color = "blue", size = 1.5) +
+    geom_vline(xintercept =  as.Date(specific_schreck$datum_off), linetype="dotted", color = "blue", size = 1.5) +
     labs(
-      title = schreck_id,
+      title = schreck_id, 
       subtitle = paste(
         "GPS Points:", nrow(combined_wildschwein_points),
         "|",
@@ -215,7 +213,7 @@ plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot
 
 
 
-#### Show how the circles lie over each other to determine whether to combine some Schreck-Locations ####
+#### Show how the circles lie over each other to determine whether to combine some Schreck-Locations #### 
 
 schreck_agenda_and_locations_merged_cricles <- st_buffer(schreck_agenda_and_locations_merged, 250)
 schreck_agenda_and_locations_merged_cricles
@@ -223,25 +221,26 @@ schreck_agenda_and_locations_merged_cricles
 ggplot() +
   geom_sf(data = schreck_agenda_and_locations_merged_cricles) +
   geom_sf(
-    data = schreck_agenda_and_locations_merged,
+    data = schreck_agenda_and_locations_merged, 
     mapping = aes(color = paste(id, "|", "on:", datum_on, "|", "off:", datum_off))
-  ) +
+    ) +
   annotation_scale() +
-  coord_sf(datum = st_crs(2056)) +
-  labs(color = "Schreck ID | Date On | Date Off", title = "Radius: 250 m")
+  coord_sf(datum=st_crs(2056)) +
+  labs(color = 'Schreck ID | Date On | Date Off', title = "Radius: 250 m")
 
 
 
 #### Generate interactive map with the Wildschwein Locations and the Schreck Location for one specific Schreck ####
 
 generate_interactive_map <- function(schreck_id, radius, days_before, days_after) {
+  
   specific_schreck <- schreck_agenda_and_locations_merged %>%
     # Filter schreck agenda to specific schreck
     filter(id == schreck_id)
-
+  
   # Draw a circle around that schreck
   specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
-
+  
   specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
     # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
     filter(
@@ -250,123 +249,118 @@ generate_interactive_map <- function(schreck_id, radius, days_before, days_after
     ) %>%
     # Filter the above-mentioned wildschwein points to ones within the schreck circle
     st_filter(specific_schreck_circle) %>%
-    # Create a new convenience variable (date, without time)
+    # Create a new convenience variable (date, without time) 
     mutate(
       date = as.Date(DatetimeUTC)
     )
-
+  
   # Convert back to lon/lat format (WGS83), otherwise leaflet doesn't work
   specific_schreck <- st_transform(specific_schreck, crs = 4326)
   specific_schreck_wildschwein <- st_transform(specific_schreck_wildschwein, crs = 4326)
-
+  
   leaflet(data = specific_schreck_4326) %>%
     addTiles() %>%
     addCircleMarkers() %>%
-    addTimeslider(
-      data = specific_schreck_wildschwein,
-      options = timesliderOptions(
-        position = "topright",
-        timeAttribute = "DatetimeUTC",
-        sameDate = TRUE,
-        alwaysShowDate = TRUE
-      )
-    ) %>%
+    addTimeslider(data = specific_schreck_wildschwein,
+                  options = timesliderOptions(
+                    position = "topright",
+                    timeAttribute = "DatetimeUTC",
+                    sameDate = TRUE,
+                    alwaysShowDate = TRUE)) %>%
     setView(bbox[1], bbox[2], zoom = 15)
 }
 
 generate_interactive_map("WSS_2015_01", 500, 10, 10)
 
-
+  
 
 #### Model, Tukey-Test and Plot as a function ####
 
-# Extract labels and factor levels from Tukey post-hoc
-generate_label_df <- function(tukey, variable) {
-  Tukey.levels <- tukey[[variable]][, 4]
-  Tukey.labels <- data.frame(multcompLetters(Tukey.levels)["Letters"])
-  Tukey.labels$period <- rownames(Tukey.labels)
-  Tukey.labels <- Tukey.labels[order(Tukey.labels$period), ]
-  return(Tukey.labels)
-}
+  # Extract labels and factor levels from Tukey post-hoc 
+  generate_label_df <- function(tukey, variable){
+    Tukey.levels <- tukey[[variable]][,4]
+    Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
+    Tukey.labels$period = rownames(Tukey.labels)
+    Tukey.labels = Tukey.labels[order(Tukey.labels$period) , ]
+    return(Tukey.labels)
+  }
 
-# Function which generates model, anova, post-hoc tukey test and a boxplot for specified schreck and radius
-anova_for_schreck <- function(schreck_id, radius) {
-
-  # Filter schreck agenda to specific schreck
-  specific_schreck <- schreck_agenda_and_locations_merged %>%
-    filter(id == schreck_id)
-
-  # Create buffer zone with radius around specific schreck
-  specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
-
-  # Filter out only the wild boar within the buffer zone
-  wildschwein_in_circle <- wildschwein_BE_sf_cropped %>%
-    st_filter(specific_schreck_circle) %>%
-    mutate(
-      date = as.Date(DatetimeUTC),
-      period =
-        ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE",
-          ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER",
-            "DURING"
-          )
-        )
-    )
-
-  # Group the gps points by day
-  wildschwein_per_day <- wildschwein_in_circle %>%
-    st_drop_geometry() %>%
-    group_by(date, period) %>%
-    summarise(
-      total_per_day = n()
-    )
-
-  # Estimate the effect of the period on the number of WS GPS Points per day:
-  model <- lm(wildschwein_per_day$total_per_day ~ wildschwein_per_day$period)
-  anova <- aov(model)
-
-  # Tukey test to study each pair of period:
-  tukey <- TukeyHSD(x = anova, "wildschwein_per_day$period", conf.level = 0.95)
-
-  # Apply the function to the dataset
-  labels <- generate_label_df(tukey, "wildschwein_per_day$period")
-
-  wildschwein_per_day <- wildschwein_per_day %>%
-    left_join(labels, by = "period")
-
-  wildschwein_per_day <- wildschwein_per_day %>%
-    mutate(
-      period = factor(period, levels = c("BEFORE", "DURING", "AFTER"))
-    )
-
-  gg_labels <- wildschwein_per_day %>%
-    group_by(period, Letters) %>%
-    summarise(
-      height = max(total_per_day)
-    )
-
-
-  print(str(wildschwein_per_day))
-
-  p <- wildschwein_per_day %>%
-    ggplot() +
-    geom_boxplot(mapping = aes(x = period, y = total_per_day)) +
-    ylim(NA, 1.1 * max(wildschwein_per_day$total_per_day)) +
-    labs(
-      x = "Period in relation to Schreck Event",
-      y = "# of GPS points within buffer zone per day (r = 100m)"
-    ) +
-    geom_text(
-      data = gg_labels,
-      aes(x = period, y = height, label = Letters),
-      vjust = -1.5, hjust = "inward"
-    )
-
-  returnedList <- list("model" = model, "anova" = anova, "wildschwein_per_day" = wildschwein_per_day, "plot" = p)
-}
-
-# Run above function for schreck WSS_2015_01
-WSS_2015_01_package <- anova_for_schreck("WSS_2015_01", 100)
-summary(WSS_2015_01_package$model)
-summary(WSS_2015_01_package$anova)
-WSS_2015_01_package$wildschwein_per_day
-WSS_2015_01_package$plot
+  # Function which generates model, anova, post-hoc tukey test and a boxplot for specified schreck and radius
+  anova_for_schreck <- function(schreck_id, radius) {
+    
+    # Filter schreck agenda to specific schreck
+    specific_schreck <- schreck_agenda_and_locations_merged %>%
+        filter(id == schreck_id)
+    
+    # Create buffer zone with radius around specific schreck
+    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
+    
+    # Filter out only the wild boar within the buffer zone
+    wildschwein_in_circle <- wildschwein_BE_sf_cropped %>%
+      st_filter(specific_schreck_circle) %>%
+      mutate(
+        date = as.Date(DatetimeUTC),
+        period = 
+          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
+                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
+                        "DURING")))
+    
+    # Group the gps points by day
+    wildschwein_per_day <- wildschwein_in_circle %>%
+      st_drop_geometry() %>%
+      group_by(date, period) %>%
+      summarise(
+        total_per_day = n()
+      )
+    
+    # Estimate the effect of the period on the number of WS GPS Points per day:
+    model <- lm(wildschwein_per_day$total_per_day ~ wildschwein_per_day$period)
+    anova <- aov(model)
+    
+    # Tukey test to study each pair of period:
+    tukey <- TukeyHSD(x = anova, 'wildschwein_per_day$period', conf.level = 0.95)
+    
+    # Apply the function to the dataset
+    labels <- generate_label_df(tukey , "wildschwein_per_day$period")
+    
+    wildschwein_per_day <- wildschwein_per_day %>%
+      left_join(labels, by = "period")
+    
+    wildschwein_per_day <- wildschwein_per_day %>%
+      mutate(
+        period = factor(period, levels = c("BEFORE", "DURING", "AFTER")) 
+      )
+    
+    gg_labels <- wildschwein_per_day %>%
+      group_by(period, Letters) %>%
+      summarise(
+        height = max(total_per_day)
+      )
+    
+    
+    print(str(wildschwein_per_day))
+    
+    p <- wildschwein_per_day %>%
+      ggplot() +
+      geom_boxplot(mapping = aes(x = period, y = total_per_day)) +
+      ylim(NA, 1.1 * max(wildschwein_per_day$total_per_day)) +
+      labs(
+        x = "Period in relation to Schreck Event",
+        y = "# of GPS points within buffer zone per day (r = 100m)"
+      ) + 
+      geom_text(data = gg_labels,
+                aes(x = period, y = height, label = Letters),
+                vjust = -1.5, hjust = "inward")
+    
+    returnedList <- list("model" = model, "anova" = anova, "wildschwein_per_day" = wildschwein_per_day, "plot" = p)
+    
+  }
+  
+  # Run above function for schreck WSS_2015_01
+  WSS_2015_01_package <- anova_for_schreck("WSS_2015_01", 100)
+  summary(WSS_2015_01_package$model)
+  summary(WSS_2015_01_package$anova)
+  WSS_2015_01_package$wildschwein_per_day
+  WSS_2015_01_package$plot
+  
+  
