@@ -377,3 +377,45 @@ saveWidget(p_WSS_2016_01, "p_WSS_2016_01.html")
   WSS_2015_01_package$plot
   
   
+#### Generate static map with the Wildschwein Locations and the Schreck Location for one specific Schreck ####
+  
+  generate_static_maps <- function(schreck_id, radius, days_before, days_after) {
+    specific_schreck <- schreck_agenda_and_locations_merged %>%
+      # Filter schreck agenda to specific schreck
+      filter(id == schreck_id)
+    
+    # Draw a circle around that schreck
+    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
+    
+    specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
+      # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
+      filter(
+        DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
+        DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
+      ) %>%
+      # Filter the above-mentioned wildschwein points to ones within the schreck circle
+      st_filter(specific_schreck_circle) %>%
+      # Create a new convenience variable (date, without time) 
+      mutate(
+        date = as.Date(DatetimeUTC),
+        period = 
+          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
+                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
+                        "DURING")),
+        period = factor(period, levels = c("BEFORE", "DURING", "AFTER"))
+      )
+    
+    p <- ggplot() +
+      geom_sf(data = specific_schreck_wildschwein, mapping = aes(color = as.factor(TierName))) +
+      geom_sf(data = specific_schreck, shape = 22, size = 3, mapping = aes(fill = "Schreck Location")) +
+      facet_grid(~ period) +
+      theme(legend.position = "bottom") +
+      scale_fill_manual("", breaks = "Schreck Location", values = "red") +
+      guides(color = guide_legend(title = "Individual name"))
+    
+    return(p)
+  }
+  
+  WSS_2015_01_static_map <- generate_static_maps("WSS_2015_01", 500, 10, 10)
+  WSS_2015_01_static_map
+  
