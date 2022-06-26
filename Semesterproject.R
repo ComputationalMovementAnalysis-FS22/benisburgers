@@ -258,7 +258,10 @@ generate_interactive_map <- function(schreck_id, radius, days_before, days_after
   specific_schreck <- st_transform(specific_schreck, crs = 4326)
   specific_schreck_wildschwein <- st_transform(specific_schreck_wildschwein, crs = 4326)
   
-  leaflet(data = specific_schreck_4326) %>%
+  bbox <- st_bbox(specific_schreck) %>%
+    as.vector()
+  
+  leaflet(data = specific_schreck) %>%
     addTiles() %>%
     addCircleMarkers() %>%
     addTimeslider(data = specific_schreck_wildschwein,
