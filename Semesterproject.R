@@ -12,6 +12,8 @@ library(cowplot)
 library(multcompView)
 library(transformr)
 library(geojsonsf)
+library(htmlwidgets)
+
 
 
 #### Initial look at the data ####
@@ -261,7 +263,7 @@ generate_interactive_map <- function(schreck_id, radius, days_before, days_after
   bbox <- st_bbox(specific_schreck) %>%
     as.vector()
   
-  leaflet(data = specific_schreck) %>%
+  p <- leaflet(data = specific_schreck) %>%
     addTiles() %>%
     addCircleMarkers() %>%
     addTimeslider(data = specific_schreck_wildschwein,
@@ -271,9 +273,17 @@ generate_interactive_map <- function(schreck_id, radius, days_before, days_after
                     sameDate = TRUE,
                     alwaysShowDate = TRUE)) %>%
     setView(bbox[1], bbox[2], zoom = 15)
+  
+  return(p)
 }
 
-generate_interactive_map("WSS_2015_01", 500, 10, 10)
+p_WSS_2015_01 <- generate_interactive_map("WSS_2015_01", 500, 10, 10)
+
+saveWidget(p_WSS_2015_01, "p_WSS_2015_01.html")
+
+p_WSS_2016_01 <- generate_interactive_map("WSS_2016_01", 500, 10, 10)
+
+saveWidget(p_WSS_2016_01, "p_WSS_2016_01.html")
 
   
 

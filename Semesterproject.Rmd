@@ -158,6 +158,14 @@ ggplot() +
 ```
 ## Data Analysis for Research Question 1
 To get an impression if the scare offs influences the occurrence of wild boars and how is the range of the effect, we designed a function. The function `draw_density_plot(schreck_id, radii, days_before, days_after)` is used to filter the data by observation radius and time for one scare off to then plot it as a density function. Thereby, the time period of days before and after the event can be set, while the time period during the event is given by the scare off agenda. 
+
+# Results
+## Research Question 1: Effect of scare off on wild boar occurance
+The wild boar occurence shows different patterns for each scare off event ( *Figure 3*). The number of GPS point for each event ranges from 178 (WSS_2016_05) to above 10'000 points (WSS_2016_05). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100m, 200m or 400m radius. However the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact in for WSS_2016_01 observation.
+In a further step of exploratory data analysis we created interactive maps for two scare off events: one with the expected results (*Map 2*) and on with the opposite results (*Map 2*).
+
+*Figure 3: Density plots for each scare off event, 10 days before and 14 days after event*
+
 ```{r, message = FALSE, warning = FALSE}
 # Create function that can automatically draw a denstiy plot for a specific schreck location 
 # & specify number of days before and after schreck event that should appear on plot
@@ -215,12 +223,6 @@ draw_density_plot <- function(schreck_id, radii, days_before, days_after) {
 ```
 
 
-# Results
-## Research Question 1: Effect of scare off on wild boar occurance
-The wild boar occurence shows different patterns for each scare off event ( *Figure 3*). The number of GPS point for each event ranges from 178 (WSS_2016_05) to above 10'000 points (WSS_2016_05). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100m, 200m or 400m radius. However the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact in for WSS_2016_01 observation.
-In a further step of exploratory data analysis we created interactive maps for two scare off events: one with the expected results (*Map 2*) and on with the opposite results (*Map 2*).
-
-*Figure 3: Density plots for each scare off event, 10 days before and 14 days after event*
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
 WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(100, 200, 400), 10, 14)
 
@@ -240,95 +242,15 @@ plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot
 ```
 
 *Map 1: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event*
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# Create an interactive map with the Wildschwein Locations and the Schreck Location for one specific Schreck
-
-#WSS_2015_01
-  # Filter schreck agenda to specific schreck
-  specific_schreck15_01 <- schreck_agenda_and_locations_merged %>%
-    filter(id == "WSS_2015_01")
-  
-  # Draw a circle around that schreck
-  specific_schreck_circle15_01 <- st_buffer(specific_schreck15_01, dist = 500)
-  
-  # Filter wildschwein points by date to only ones occuring within     above-mentioned schreck event (10 days before, during and 14 days after)
-  specific_schreck_wildschwein15_01 <- wildschwein_BE_sf_cropped %>%
-    filter(
-      DatetimeUTC > as.Date(specific_schreck15_01$datum_on) - 10,
-      DatetimeUTC < as.Date(specific_schreck15_01$datum_off) + 14
-    )
-  
-  # Filter the above-mentioned wildschwein points to ones within the schreck circle
-  specific_schreck_wildschwein_cropped15_01 <- specific_schreck_wildschwein15_01 %>%
-    st_filter(specific_schreck_circle15_01)
-  
-  # Create a new convenience variable (date, without time)
-  specific_schreck_wildschwein_cropped15_01 <- specific_schreck_wildschwein_cropped15_01 %>%
-    mutate(
-      date = as.Date(DatetimeUTC)
-    )
-  
-  # Convert back to lon/lat format (WGS83), otherwise leaflet doesn't work
-  wildschwein_4326_15_01 <- st_transform(specific_schreck_wildschwein_cropped15_01, crs = 4326)
- 
-  specific_schreck_4326_15_01 <- st_transform(specific_schreck15_01, crs = 4326)
- 
-  
-  leaflet(data = specific_schreck_4326_15_01) %>%
-    addTiles() %>%
-    addCircleMarkers() %>%
-    addTimeslider(data = wildschwein_4326_15_01,
-                  options = timesliderOptions(
-                    position = "topright",
-                    timeAttribute = "DatetimeUTC",
-                    sameDate = TRUE,
-                    alwaysShowDate = TRUE)) %>%
-    setView(-72, 22, 4)
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+knitr::include_url("p_WSS_2015_01.html")
 ```
 
 *Map 2: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event*
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-##WSS_2016_01
-  # Filter schreck agenda to specific schreck
-  specific_schreck16_01 <- schreck_agenda_and_locations_merged %>%
-    filter(id == "WSS_2016_01")
-  
-  # Draw a circle around that schreck
-  specific_schreck_circle16_01 <- st_buffer(specific_schreck16_01, dist = 200)
-  
-  # Filter wildschwein points by date to only ones occuring within     above-mentioned schreck event (10 days before, during and 14 days after)
-  specific_schreck_wildschwein16_01 <- wildschwein_BE_sf_cropped %>%
-    filter(
-      DatetimeUTC > as.Date(specific_schreck16_01$datum_on) - 10,
-      DatetimeUTC < as.Date(specific_schreck16_01$datum_off) + 14
-    )
-  
-  # Filter the above-mentioned wildschwein points to ones within the schreck circle
-  specific_schreck_wildschwein_cropped16_01 <- specific_schreck_wildschwein16_01 %>%
-    st_filter(specific_schreck_circle16_01)
-  
-  # Create a new convenience variable (date, without time)
-  specific_schreck_wildschwein_cropped16_01 <- specific_schreck_wildschwein_cropped16_01 %>%
-    mutate(
-      date = as.Date(DatetimeUTC)
-    )
-  
-  # Convert back to lon/lat format (WGS83), otherwise leaflet doesn't work
-  wildschwein_4326_16_01 <- st_transform(specific_schreck_wildschwein_cropped16_01, crs = 4326)
- 
-  specific_schreck_4326_16_01 <- st_transform(specific_schreck16_01, crs = 4326)
- 
-  leaflet(data = specific_schreck_4326_16_01) %>%
-    addTiles() %>%
-    addCircleMarkers() %>%
-    addTimeslider(data = wildschwein_4326_16_01,
-                  options = timesliderOptions(
-                    position = "topright",
-                    timeAttribute = "DatetimeUTC",
-                    sameDate = TRUE,
-                    alwaysShowDate = TRUE)) %>%
-    setView(-72, 22, 4)
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+knitr::include_url("p_WSS_2016_01.html")
 ```
+
 To be continued
 # Discussion
 coming soon
