@@ -488,6 +488,102 @@ WSS_2016_01_static_map
 
 ```
 
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+# Function to see how many data points per individual are available
+generate_data_points_table <- function(schreck_id, radius, days_before, days_after) {
+    specific_schreck <- schreck_agenda_and_locations_merged %>%
+      # Filter schreck agenda to specific schreck
+      filter(id == schreck_id)
+    
+    # Draw a circle around that schreck
+    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
+    
+    specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
+      # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
+      filter(
+        DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
+        DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
+      ) %>%
+      # Create a new convenience variable (date, without time) 
+      mutate(
+        date = as.Date(DatetimeUTC),
+        period = 
+          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
+                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
+                        "DURING")),
+        period = factor(period, levels = c("BEFORE", "DURING", "AFTER"))
+      )
+    
+    points_per_individual <- specific_schreck_wildschwein %>%
+      group_by(TierID) %>%
+      summarise(
+        total = n()
+      ) %>%
+      arrange(desc(total)) %>%
+      st_drop_geometry()
+    
+    return(points_per_individual)
+  }
+
+```
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+# Function to generate static map for single individual wild boar
+
+  generate_static_map_individual_wild_boar <- function(schreck_id, radius, days_before, days_after, tier_id) {
+    specific_schreck <- schreck_agenda_and_locations_merged %>%
+      # Filter schreck agenda to specific schreck
+      filter(id == schreck_id)
+    
+    # Draw a circle around that schreck
+    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
+    
+    specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
+      # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
+      filter(
+        DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
+        DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
+      ) %>%
+      # Create a new convenience variable (date, without time) 
+      mutate(
+        date = as.Date(DatetimeUTC),
+        period = 
+          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
+                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
+                        "DURING")),
+        period = factor(period, levels = c("BEFORE", "DURING", "AFTER"))
+      )
+    
+    specific_schreck_wildschwein_single_individual <- specific_schreck_wildschwein %>%
+      filter(
+        TierID == tier_id
+      )
+    
+    plot <- ggplot(specific_schreck_wildschwein_single_individual) +
+      geom_sf() +
+      geom_path(stat = "sf_coordinates", mapping = aes(geometry = geometry)) +
+      geom_point(stat = "sf_coordinates", mapping = aes(geometry = geometry, color = period)) +
+      geom_sf(data = specific_schreck, shape = 22, size = 3, mapping = aes(fill = "Schreck Location")) +
+      geom_sf(data = specific_schreck_circle, fill = NA, color = "orange") +
+      scale_fill_manual("", breaks = "Schreck Location", values = "red")
+    
+    return(plot)
+  }
+
+```
+
+*We chose the individual (01) with the highest number of GPS data points within the 200m buffer zone around the schreck with the largest number of data points (WSS_2015_01, see densitiy plots above,). However, this plot shows all of that individuals data points from 10 days before until 10 days after the schreck events, even outside of the buffer zone (orange circle)*
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+
+  number_of_points_per_individual <- generate_data_points_table("WSS_2015_01", 200, 10, 10)
+  kable(number_of_points_per_individual)
+
+  WSS_2015_01_individual <- generate_static_map_individual_wild_boar("WSS_2015_01", 200, 10, 10, 2)
+  WSS_2015_01_individual
+
+```
+
 
 To be continued
 # Discussion
