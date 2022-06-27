@@ -33,9 +33,15 @@ Society philosophy merciful selfish sexuality depths overcome madness. Morality 
 
 # Introduction
 
-Since almost going extinct in some parts of Europe the population of wild boars (Sus scrofa) has increased strongly^1,6^, and they are now the fifth largest ungulated species in Europe^2,3^. The increase of population in Europe has had significant influence on the biodiversity in forests and an economic impact on cultivated areas due to damage in in crop fields and transmission of diseases on domestic animals^2^. In Switzerland the damages from wild boars to cultivated areas cumulate to several million CHF a year^4^. In order to reduce damage from wild boars in Switzerland, the federal environmental agency (Bundesamt für Umwelt/BAFU) has released a document with tips and guidelines for the regulation of wild boar management and damage prevention. Measures described in the guideline include population control through hunting, employment of damage reducing actions, such as the use of electrical fences around cultivated areas or dissuasive feeding and the appropriate reimbursement for damages^5,6,7^. Hunting to reduce populations might be the most effective way to reduce damages but it can also have a negative impact on the living environment of other animals or plants and is extremely time- as well as work-intensive^3,5,7^. Other measures such as electrical fencing are time-intensive and costly to install^8^.
+Since almost going extinct in some parts of Europe the population of wild boars (Sus scrofa) has increased strongly ^1,2^, and they are now the fifth largest ungulated species in Europe ^3,4^. The increase of population in Europe has had significant influence on the biodiversity in forests and an economic impact on cultivated areas due to damage in in crop fields and transmission of diseases on domestic animals3. In Switzerland the damages from wild boars to cultivated areas cumulate to several million CHF a year ^5^. In order to reduce damage from wild boars in Switzerland, the Federal environmental agency (Bundesamt für Umwelt/BAFU) has released a document with tips and guidelines for the regulation of wild boar management and damage prevention. Measures described in the guideline include population control through hunting, employment of damage reducing actions, such as the use of electrical fences around cultivated areas or dissuasive feeding and the appropriate reimbursement for damages ^2,6,7^. Hunting to reduce population might be the most effective way to reduce damages but it can also have a negative impact on the living environment of other animals or plants and is highly time as well as work intensive ^4,6,7^. Other measures such as electrical fencing are sometimes also time intensive and costly to install. However, adequate defending measures are needed in the future as with population growth and the increasing distribution of wild boars, the pressure on agricultural land will continue to increase.  Due to the drawbacks of the described measures cheaper and less time and work consuming instruments have been tested such as acoustic scaring offs1. Wild boars have a keen sense of hearing and communicate with each other with warning sounds when they sense danger ^8^. This characteristic can be exploited to keep wild boars away from agricultural land by means of an acoustic scare device. This involves playing wild boar warning sounds at intervals.
 
-## Research Questions 
+Previous studies at the Department WILMA (Wildtiermanagement) at the ZHAW have demonstrated a reduction in damage to agricultural crops. In addition, the effectiveness of acoustic wild boar scare offs should be analyzed in terms of their impact on the spatial behavior of wild boars.
+
+## Aim of the Study and Research Questions 
+
+This present study is developed within the module Patterns and Trends in environmental Data (PTED 22). The effectiveness of the acoustic wild boar scare off systems is to be investigated on the basis of the spatial behavior of wild boars. In the course of this, gps location data of wild boars with different sampling intervals over a period of about 2 years and data sets of scare off location and agenda were provided. The area of interest in this study is the Fanel region at the western end of Lake Neuchâtel.
+
+The aims of this study is to answer the following research questions:
 - How effective are the Wildschwein-Schreck (WS) at keeping away wild boar and how long do these effects last?
 - What settings (mode, noise level, interval, azimuth) and setting-combintations are most effective at keeping away wild boar?
 
@@ -442,3 +448,12 @@ coming soon
 
 
 # References
+
+(1) 	Suter Forschungsgruppe Wildtiermanagement WILMA, S. Forschungsprojekt Prävention von Wildschweinschäden in Der Landwirtschaft.
+(2) 	Thurfjell, H.; Ball, J. P.; Åhlén, P.-A.; Kornacher, P.; Dettki, H.; Sjöberg, K. Habitat Use and Spatial Patterns of Wild Boar Sus Scrofa (L.): Agricultural Fields and Edges. European Journal of Wildlife Research 2009, 55 (5), 517–523. https://doi.org/10.1007/s10344-009-0268-1.
+(3) 	Geisser, H.; Reyer, H. The Influence of Food and Temperature on Population Density of Wild Boar (Sus Scrofa) in the Thurgau (Switzerland). Journal of Zoology 2005, 267 (1), 89–96. https://doi.org/10.1017/S095283690500734X.
+(4) 	Geisser, H. Efficacy of Hunting, Feeding, and Fencing to Reduce Crop Damage by Wild Boars. https://doi.org/10.2193/0022-541X.
+(5) 	Jagdstatistik. https://www.jagdstatistik.ch/de/statistics?tt=2&dt=0&at=0&st=0&dp=0&ar=GE&th=1&yr%5Bfrom%5D=2000&yr%5Bto%5D=2020&sp=350 (accessed 2022-06-22).
+(6) 	Wildschweinmanagement – Lernen aus der Erfahrung anderer. https://www.admin.ch/gov/de/start/dokumentation/medienmitteilungen.msg-id-8817.html (accessed 2022-06-22).
+(7) 	Thurfjell, H.; Spong, G.; Ericsson, G. Effects of Hunting on Wild Boar (Sus Scrofa) Behaviour. Wildlife Biology 2013, 19 (1), 87–93. https://doi.org/10.2981/12-027.
+(8) 	Meynhardt H. Untersuchung Zur Akustischen, Olfaktorischen Und Visuellen Kommunikation Des Europäischen Wildschweines (Sus Scarofa L.). Beiträge für die Frorstwirtschaft 1980, 14 (2), 74–82.
