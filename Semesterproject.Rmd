@@ -33,7 +33,7 @@ Society philosophy merciful selfish sexuality depths overcome madness. Morality 
 
 # Introduction
 
-Since almost going extinct in some parts of Europe the population of wild boars (Sus scrofa) has increased strongly(1,6), and they are now the fifth largest ungulated species in Europe(2,3). The increase of population in Europe has had significant influence on the biodiversity in forests and an economic impact on cultivated areas due to damage in in crop fields and transmission of diseases on domestic animals(2). In Switzerland the damages from wild boars to cultivated areas cumulate to several million a year(4). In order to reduce damage from wild boars in Switzerland, the Federal environmental agency (Bundesamt für Umwelt/BAFU) has released a document with tips and guidelines for the regulation of wild boar management and damage prevention. Measures described in the guideline include population control through hunting, employment of damage reducing actions, such as the use of electrical fences around cultivated areas or dissuasive feeding and the appropriate reimbursement for damages.(5,6,7) Hunting to reduce population might be the most effective way to reduce damages but it can also have a negative impact on the living environment of other animals or plants and is highly time as well as work intensive(3,5,7). Other Measures such as electrical fencing are time intensive and costly to install(8).
+Since almost going extinct in some parts of Europe the population of wild boars (Sus scrofa) has increased strongly^1,6^, and they are now the fifth largest ungulated species in Europe^2,3^. The increase of population in Europe has had significant influence on the biodiversity in forests and an economic impact on cultivated areas due to damage in in crop fields and transmission of diseases on domestic animals^2^. In Switzerland the damages from wild boars to cultivated areas cumulate to several million CHF a year^4^. In order to reduce damage from wild boars in Switzerland, the federal environmental agency (Bundesamt für Umwelt/BAFU) has released a document with tips and guidelines for the regulation of wild boar management and damage prevention. Measures described in the guideline include population control through hunting, employment of damage reducing actions, such as the use of electrical fences around cultivated areas or dissuasive feeding and the appropriate reimbursement for damages^5,6,7^. Hunting to reduce populations might be the most effective way to reduce damages but it can also have a negative impact on the living environment of other animals or plants and is extremely time- as well as work-intensive^3,5,7^. Other measures such as electrical fencing are time-intensive and costly to install^8^.
 
 ## Research Questions 
 - How effective are the Wildschwein-Schreck (WS) at keeping away wild boar and how long do these effects last?
@@ -44,17 +44,18 @@ Since almost going extinct in some parts of Europe the population of wild boars 
 Following R-Packages were used for the data processing and analysis:
 
 - ComputationalMovementAnalysisData
-- cowplot
-- gganimate
-- ggspatial
-- knitr
+- tidyverse
+- sf
 - leaflet
 - leaflet.extras2
-- sf
-- tidyverse
+- gganimate
+- ggspatial
+- cowplot
+- knitr
+- multcompView
+
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
 library(tidyverse)
-devtools::install_github("ComputationalMovementAnalysis/ComputationalMovementAnalysisData")
 library(ComputationalMovementAnalysisData)
 library(sf)
 library(leaflet)
@@ -65,26 +66,27 @@ library(cowplot)
 library(knitr)
 library(multcompView)
 ```
-Data used for this project was provided from the module supervisors. Used was a dataset of wild boar locations with time stamps (*Table 1*; wildschwein_BE), a set with the location of the scare offs (*Table 2*; schreck_location) and a third set including the data when the scare offs were on/off with additional information about parameter settings. (*Table 3*; schreck_agenda). The wild boar location was sampled in 15 min intervals while for the scare off events we have data of the date of on/off but no further time information. The scare off settings can be adjusted for two different modes (standard v1 and aggressive v2), volume (a range of 33 - 100), interval (12.5 - 30), max. and min. orientation (0-330).
+
+Data used for this project was provided from our module supervisors. We used a dataset of wild boar GPS locations with time stamps (*Table 1*; wildschwein_BE), a set with the locations of the scare off (schreck) devices (*Table 2*; schreck_location) and a third set including the data when the schreck devices were on/off with additional information about their parameter settings. (*Table 3*; schreck_agenda). The wild boar location was sampled at 15 min intervals. while for the schreck events we know when they were turned on and off but have no further time information (in regards to their intervalls). The individual schreck settings can be adjusted for two different modes (standard v1 and aggressive v2), volume (a range of 33 - 100), interval (12.5 - 30), max. and min. orientation (0-330). We have access to all of that data as well.
 
 *Table 1: Wild boar location data*
 ```{r}
 kable(head(wildschwein_BE))
 ```
 
-*Table 2: Scare off location data*
+*Table 2: Schreck location data*
 ```{r}
 kable(head(schreck_locations))
 ```
 
-*Table 3: Scare off on/off, interval and parameter data*
+*Table 3: Schreck on/off, interval and parameter data*
 ```{r}
 kable(head(schreck_agenda))
 ```
 ## Filter Data
-The data was filtered for the relevant areas and time periods. As a first step, only wild boar location data within the area of the scare offs was considered. Therefore, the data frames were transformed to sf objects to then be visually investigated (*Figure 1*) and then cropped to the relevant area (*Figure 2*).
+Both the wildboar and the schreck data was filtered. The data was filtered for the relevant areas and time periods. As a first step, only wild boar location data within the closer proximity of the schreck locations was considered. Therefore, the data frames were transformed to sf objects and visually investigated (*Figure 1*) as well as cropped to the relevant area (*Figure 2*).
 
-*Figure 1: Wild boar locations (blue) and scare off locations (red) uncropped*
+*Figure 1: Wild boar locations (blue) and schreck locations (red) uncropped*
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
 # Convert data to sf formats
 schreck_locations_sf <- st_as_sf(schreck_locations,
@@ -117,7 +119,8 @@ ggplot() +
   annotation_scale() +
   coord_sf(datum=st_crs(2056))
 ```
-Secondly, the data frames of the scare off data was joined to one data frame and afterwards filtered according to the time when wild boar data was available. After filtering 7 relevant scare offs remain. Those are listed in *Table 4*. In order to be able to rule out the possibility that the scare offs influenced someone one anothers data, in terms of wild boar occurrence, we examined the distances of the scare offs, as shown in *Figure 3*. Although scare off 2015_04 and 2016_06 are very close to each other (a few meter), they were active in different years. Therefore, we assumed there is no mutual influence in terms of wild boar scare off. However, for the statistical approaches we had to neglect two additonal scare offs. WSS_2016_06 provides only 7 GPS points within a scare off duration of 30 with 10 days before and 14 days after event and WSS_2016_03 was active only for 5 days which is not comparable to the other events.
+
+Secondly, the two data frames for the schreck locations and the schreck agenda were joined to a single data frame and afterwards filtered according to the time when wild boar data was available. After filtering, 7 relevant schreck events and locations remain. Those are listed in *Table 4*.
 
 *Table 4: Scare offs active within wild boar sampling period*
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
@@ -142,6 +145,8 @@ schreck_agenda_and_locations_merged <- schreck_agenda_and_locations_filtered %>%
 kable(schreck_agenda_and_locations_merged)
 ```
 
+In order to be able to rule out the possibility that the schreck events somehow interacted with each other, we examined the physical and temporal distances between the schreck events and locations, as shown in *Figure 3*. Although schreck 2015_04 and 2016_06 are very close to each other (within a few meters), they were active in different years. Therefore, we assumed there is no mutual influence in terms of wild boar scare off.
+
 *Figure 3: Scare off location overlap*
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # Show how the circles lie over each other to determine whether to combine some Schreck-Locations
@@ -157,15 +162,6 @@ ggplot() +
   coord_sf(datum=st_crs(2056)) +
   labs(color = 'Schreck ID | Date On | Date Off', title = "Radius: 250 m")
 ```
-## Data Analysis for Research Question 1
-To get an impression if the scare offs influences the occurrence of wild boars and how is the range of the effect, we designed a function. The function `draw_density_plot(schreck_id, radii, days_before, days_after)` is used to filter the data by observation radius and time for one scare off to then plot it as a density function. Thereby, the time period of days before and after the event can be set, while the time period during the event is given by the scare off agenda. 
-
-# Results
-## Research Question 1: Effect of scare off on wild boar occurance
-The wild boar occurence shows different patterns for each scare off event ( *Figure 3*). The number of GPS point for each event ranges from 178 (WSS_2016_05) to above 10'000 points (WSS_2016_05). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100m, 200m or 400m radius. However the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact in for WSS_2016_01 observation.
-In a further step of exploratory data analysis we created interactive maps for two scare off events: one with the expected results (*Map 2*) and on with the opposite results (*Map 2*).
-
-*Figure 3: Density plots for each scare off event, 10 days before and 14 days after event*
 
 ```{r, message = FALSE, warning = FALSE}
 # Create function that can automatically draw a denstiy plot for a specific schreck location 
@@ -216,13 +212,43 @@ draw_density_plot <- function(schreck_id, radii, days_before, days_after) {
       subtitle = paste(
         "GPS Points:", nrow(combined_wildschwein_points),
         "|",
-        "Schreck Duration:", (difftime(as.Date(specific_schreck$datum_off), as.Date(specific_schreck$datum_on), units = "days")),
+        "Duration:", (difftime(as.Date(specific_schreck$datum_off), as.Date(specific_schreck$datum_on), units = "days")),
         "days"
       )
     )
 }
 ```
 
+Additionally, for the statistical approaches we had to neglect two scare offs. WSS_2016_06 provides only 11 GPS points within a scare off duration of 30 days (with 10 days before and 14 days after the scare off event and a buffer zone with a radius of 500m around the scare off location) and WSS_2016_03 was active only for 5 days which is not comparable to the other scare off events.
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(500), 10, 14)
+
+WSS_2015_03_plot <- draw_density_plot("WSS_2015_03", c(500), 10, 14)
+
+WSS_2015_04_plot <- draw_density_plot("WSS_2015_04", c(500), 10, 14)
+
+WSS_2016_01_plot <- draw_density_plot("WSS_2016_01", c(500), 10, 14)
+
+WSS_2016_05_plot <- draw_density_plot("WSS_2016_05", c(500), 10, 14)
+
+WSS_2016_06_plot <- draw_density_plot("WSS_2016_06", c(500), 10, 14)
+
+WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", c(500), 10, 14)
+
+plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot, WSS_2016_06_plot, WSS_2016_13_plot, ncol = 2)
+```
+ 
+ 
+## Data Analysis for Research Question 1
+To get an impression if the scare offs influences the occurrence of wild boars and how is the range of the effect, we designed a function. The function `draw_density_plot(schreck_id, radii, days_before, days_after)` is used to filter the data by observation radius and time for one scare off to then plot it as a density function. Thereby, the time period of days before and after the event can be set, while the time period during the event is given by the scare off agenda. 
+
+# Results
+## Research Question 1: Effect of scare off on wild boar occurance
+The wild boar occurence shows different patterns for each scare off event ( *Figure 3*). The number of GPS point for each event ranges from 178 (WSS_2016_05) to above 10'000 points (WSS_2016_05). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100m, 200m or 400m radius. However the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact in for WSS_2016_01 observation.
+In a further step of exploratory data analysis we created interactive maps for two scare off events: one with the expected results (*Map 2*) and on with the opposite results (*Map 2*).
+
+*Figure 3: Density plots for each scare off event, 10 days before and 14 days after event*
 
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
 WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(100, 200, 400), 10, 14)
