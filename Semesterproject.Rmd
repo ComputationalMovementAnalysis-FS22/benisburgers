@@ -291,8 +291,8 @@ knitr::include_url("p_WSS_2016_01.html")
   generate_label_df <- function(tukey, variable){
     Tukey.levels <- tukey[[variable]][,4]
     Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
-    Tukey.labels$period = rownames(Tukey.labels)
-    Tukey.labels = Tukey.labels[order(Tukey.labels$period) , ]
+    Tukey.labels[[variable]] = rownames(Tukey.labels)
+    Tukey.labels = Tukey.labels[order(Tukey.labels[[variable]]) , ]
     return(Tukey.labels)
   }
 
@@ -325,14 +325,13 @@ knitr::include_url("p_WSS_2016_01.html")
       )
     
     # Estimate the effect of the period on the number of WS GPS Points per day:
-    model <- lm(wildschwein_per_day$total_per_day ~ wildschwein_per_day$period)
-    anova <- aov(model)
+    anova <- aov(total_per_day ~ period, data = wildschwein_per_day)
     
     # Tukey test to study each pair of period:
-    tukey <- TukeyHSD(x = anova, 'wildschwein_per_day$period', conf.level = 0.95)
+    tukey <- TukeyHSD(x = anova)
     
     # Apply the function to the dataset
-    labels <- generate_label_df(tukey , "wildschwein_per_day$period")
+    labels <- generate_label_df(tukey , "period")
     
     wildschwein_per_day <- wildschwein_per_day %>%
       left_join(labels, by = "period")
@@ -360,7 +359,7 @@ knitr::include_url("p_WSS_2016_01.html")
                 aes(x = period, y = height, label = Letters),
                 vjust = -1.5, hjust = "inward")
     
-    returnedList <- list("model" = model, "anova" = anova, "wildschwein_per_day" = wildschwein_per_day, "plot" = p)
+    returnedList <- list("anova" = anova, "wildschwein_per_day" = wildschwein_per_day, "plot" = p)
     
   }
 ```
