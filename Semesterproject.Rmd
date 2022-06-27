@@ -274,9 +274,57 @@ WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", c(100, 200, 400), 10, 14)
 plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot, nrow = 3)
 ```
 
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+generate_interactive_map <- function(schreck_id, radius, days_before, days_after) {
+  
+  specific_schreck <- schreck_agenda_and_locations_merged %>%
+    # Filter schreck agenda to specific schreck
+    filter(id == schreck_id)
+  
+  # Draw a circle around that schreck
+  specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
+  
+  specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
+    # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
+    filter(
+      DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
+      DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
+    ) %>%
+    # Filter the above-mentioned wildschwein points to ones within the schreck circle
+    st_filter(specific_schreck_circle) %>%
+    # Create a new convenience variable (date, without time) 
+    mutate(
+      date = as.Date(DatetimeUTC)
+    )
+  
+  # Convert back to lon/lat format (WGS83), otherwise leaflet doesn't work
+  specific_schreck <- st_transform(specific_schreck, crs = 4326)
+  specific_schreck_wildschwein <- st_transform(specific_schreck_wildschwein, crs = 4326)
+  
+  bbox <- st_bbox(specific_schreck) %>%
+    as.vector()
+  
+  p <- leaflet(data = specific_schreck) %>%
+    addTiles() %>%
+    addCircleMarkers() %>%
+    addTimeslider(data = specific_schreck_wildschwein,
+                  options = timesliderOptions(
+                    position = "topright",
+                    timeAttribute = "DatetimeUTC",
+                    sameDate = TRUE,
+                    alwaysShowDate = TRUE)) %>%
+    setView(bbox[1], bbox[2], zoom = 15)
+  
+  return(p)
+}
+
+# Example: 
+# p_WSS_2015_01 <- generate_interactive_map("WSS_2015_01", 500, 10, 10)
+```
+
 *Map 1: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event*
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
-# The reason why we imported the leaflet widgets as html files, instead of running the code in the markdown file has do to with the fact that the leaflet timeslider seems to fail when we present more than 1 interactive map. If you want to see how these maps are generated, please have a look at the Semesterproject.R file (generate_interactive_map)
+# The reason why we imported the leaflet widgets as html files, instead of running the code in the markdown file has do to with the fact that the leaflet timeslider seems to fail when we present more than 1 interactive map. If you want to see how these maps are generated, please have a look at the code in the previous chunk (generate_interactive_map)
 knitr::include_url("p_WSS_2015_01.html")
 ```
 
