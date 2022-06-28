@@ -42,6 +42,7 @@ Previous studies at the Department WILMA (Wildtiermanagement) at the ZHAW have d
 This present study is developed within the module Patterns and Trends in environmental Data (PTED 22). The effectiveness of the acoustic wild boar scare off systems is to be investigated on the basis of the spatial behavior of wild boars. In the course of this, gps location data of wild boars with different sampling intervals over a period of about 2 years and data sets of scare off location and agenda were provided. The area of interest in this study is the Fanel region at the western end of Lake Neuchâtel.
 
 The aims of this study is to answer the following research questions:
+
 - How effective are the Wildschwein-Schreck (WS) at keeping away wild boar and how long do these effects last?
 - What settings (mode, noise level, interval, azimuth) and setting-combintations are most effective at keeping away wild boar?
 
@@ -89,7 +90,7 @@ kable(head(schreck_locations))
 ```{r}
 kable(head(schreck_agenda))
 ```
-## Filter Data
+## Data Preprocessing and Tools
 Both the wildboar and the schreck data was filtered. The data was filtered for the relevant areas and time periods. As a first step, only wild boar location data within the closer proximity of the schreck locations was considered. Therefore, the data frames were transformed to sf objects and visually investigated (*Figure 1*) as well as cropped to the relevant area (*Figure 2*).
 
 *Figure 1: Wild boar locations (blue) and schreck locations (red) uncropped*
@@ -225,7 +226,7 @@ draw_density_plot <- function(schreck_id, radii, days_before, days_after) {
 }
 ```
 
-Additionally, for the statistical approaches we had to neglect two scare offs. WSS_2016_06 provides only 11 GPS points within a scare off duration of 30 days (with 10 days before and 14 days after the scare off event and a buffer zone with a radius of 500m around the scare off location) and WSS_2016_03 was active only for 5 days which is not comparable to the other scare off events.
+Additionally, for the statistical approaches we had to neglect two scare offs. WSS_2016_06 provides only 11 GPS points within a scare off duration of 30 days (with 10 days before and 14 days after the scare off event and a buffer zone with a radius of 500m around the scare off location) and WSS_2016_13 was active only for 5 days which is not comparable to the other scare off events.
 
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
 WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(500), 10, 14)
@@ -246,17 +247,16 @@ plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot
 ```
  
  
-## Data Analysis for Research Question 1
+### New Function
 To get an impression if the scare offs influences the occurrence of wild boars and how is the range of the effect, we designed a function. The function `draw_density_plot(schreck_id, radii, days_before, days_after)` is used to filter the data by observation radius and time for one scare off to then plot it as a density function. Thereby, the time period of days before and after the event can be set, while the time period during the event is given by the scare off agenda. 
 
 # Results
-## Research Question 1: Effect of scare off on wild boar occurance
-The wild boar occurence shows different patterns for each scare off event ( *Figure 3*). The number of GPS point for each event ranges from 178 (WSS_2016_05) to above 10'000 points (WSS_2016_05). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100m, 200m or 400m radius. However the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact in for WSS_2016_01 observation.
-In a further step of exploratory data analysis we created interactive maps for two scare off events: one with the expected results (*Map 2*) and on with the opposite results (*Map 2*).
+## Effect of scare off on total wild boar occurance
+### Exploratory Analysis
+The wild boar occurence shows different patterns for each scare off event ( *Figure 3*). The number of GPS point for each event ranges from 178 (WSS_2016_05) to above 10'000 points (WSS_2015_01). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100m, 200m or 400m radius. However the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact for WSS_2016_01 observation.
+In a further step of exploratory data analysis we created interactive maps for two scare off events: one with the expected results (*Map 2*; WSS_2016_01) and on with the opposite results (*Map 1*; Wss_2015_01) for visual comparison.
 
-*Figure 3: Density plots for each scare off event, 10 days before and 14 days after event*
-
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+```{r, echo = FALSE, warning=FALSE, message=FALSE, fig.cap= "Figure 3: Density plots for each scare off event, 10 days before and 14 days after event"}
 WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(100, 200, 400), 10, 14)
 
 WSS_2015_03_plot <- draw_density_plot("WSS_2015_03", c(100, 200, 400), 10, 14)
@@ -322,18 +322,23 @@ generate_interactive_map <- function(schreck_id, radius, days_before, days_after
 # p_WSS_2015_01 <- generate_interactive_map("WSS_2015_01", 500, 10, 10)
 ```
 
-*Map 1: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event*
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE, fig.cap= "Map 1: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event"}
 # The reason why we imported the leaflet widgets as html files, instead of running the code in the markdown file has do to with the fact that the leaflet timeslider seems to fail when we present more than 1 interactive map. If you want to see how these maps are generated, please have a look at the code in the previous chunk (generate_interactive_map)
 knitr::include_url("p_WSS_2015_01.html")
 ```
 
-*Map 2: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event*
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE, fig.cap= "Map 2: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event"}
 knitr::include_url("p_WSS_2016_01.html")
 ```
 
-*Box Plot with Tukey's Post-Hoc Test (ANOVA) 1: Number of GPS locations per day within the buffer zon before, during and after the scheck event*
+With regard to the research question posed in advance, how effective the wild boar scare off is in keeping away wild boar, we can already make some statements through the explorative data analysis. Out of the 5 scare off that were finally selected for consideration, 3 showed the opposite effect of what we expected. Namely, an increase in wild boar occurrence during the scare off period. The scare offs WSS_2016_01 and WSS_2016_05, on the other hand, showed after exploratory analysis, the pattern what is to be expected in case of an effective defence measure. For this reason, these two scare offs were examined in more detail in a statistical data analysis.
+
+### Statistical Analysis
+An ANOVA revealed a significant difference in wild boar occurrence before, during, and after the scare off event of WSS_2016_01 (p-value =2.91x10-9), considering a 200m impact radius. However, the difference is between the occurrence before and after the startle event, while there is no significant difference to the occurrence during the scare off event on both sides (Tukey's post-hoc test) (*Figure 4*). 
+For WSS_2016_05, no statistically significant effect of the wild boar scare off could be detected, related to the occurrence before, during and after the event considering an effect radius of 200m ANOVA, p= 0.602) (*Figure 5*). 
+
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
   # Extract labels and factor levels from Tukey post-hoc 
   generate_label_df <- function(tukey, variable){
@@ -412,17 +417,14 @@ knitr::include_url("p_WSS_2016_01.html")
   }
 ```
 
-
-*Schreck-ID: WSS_2016_01, Radius: 200m*
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+```{r, echo = FALSE, warning=FALSE, message=FALSE, fig.cap="Figure 4: Box Plot with Tukey's Post-Hoc Test for scare off WSS_2016_01, number of GPS locations per day within 200m radius, before, during, and after the scare off event"}
 # Run above function for schreck WSS_2016_01
   WSS_2016_01_package <- anova_for_schreck("WSS_2016_01", 100)
   summary(WSS_2016_01_package$anova)
   WSS_2016_01_package$plot
 ```
 
-*Schreck-ID: WSS_2016_05, Radius: 200m*
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+```{r, echo = FALSE, warning=FALSE, message=FALSE, fig.cap="Figure 5: Box Plot with Tukey's Post-Hoc Test for scare off WSS_2016_05, number of GPS locations per day within 200m radius, before, during, and after the scare off event"}
 # Run above function for schreck WSS_2016_01
   WSS_2016_05_package <- anova_for_schreck("WSS_2016_05", 100)
   summary(WSS_2016_05_package$anova)
@@ -470,23 +472,28 @@ knitr::include_url("p_WSS_2016_01.html")
   }
 ```
 
-*Static map (before, during, after): WSS_2015_01, radius = 200m, 10 days before until 10 days after schreck event*
+None of the scare offs shows a significant effect related to the total occurrence of wild boars. Based on this we conclude that the scare offs do not influence the spatial behaviour, in terms of location. For this reason, the second part of research question 1, how long the effect lasts, cannot be answered. The investigation of research question 2, what settings (mode, noise level, interval, azimuth) and setting-combintations are most effective at keeping away wild boar, could therefore not be pursued further.
 
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+## Individual change in Wild boars location
+In an additional exploratory data analysis, we scaled the observation from all wild boars to single individuals per scare off. Again, the focus is on comparing scare off events with expected patterns and events with opposite patterns. *Figure 6* shows the locations of the four individuals, Caroline, Claude, Olga, and Sabine, that were within a 200m radius of the scare off event WSS_2015_01 10 days before, during, and 10 days after the event. Caroline and Olga do not seem to be kept away from the scare off, but rather even attracted to it. Also Sabine comes only in the 200m as the scare off is on and remains also afterwards still in the proximity. Only Claude moves away during the scare off event and is no longer within the 200m radius 10 days after the event.
+At WSS_2016_01 the individuals Caroline, Frida and Miriam are to be considered (*Figure 7*). Here moving away of the wild boars is shown again, as already shown in *Figure 3* as well. Caroline disappears during the fright event and also Frida moves away from the 200m radius afterwards. 
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE, fig.cap="Figure 6: Static map (before, during, after), of WSS_2015_01, radius = 200m, 10 days before until 10 days after scare off event"}
 
 WSS_2015_01_static_map <- generate_static_maps("WSS_2015_01", 200, 10, 10)
 WSS_2015_01_static_map
 
 ```
 
-*Static map (before, during, after): WSS_2016_01, radius = 200m, 10 days before until 10 days after schreck event*
 
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+```{r, echo = FALSE, warning=FALSE, message=FALSE, fig.cap="Figure 7: Static map (before, during, after) of WSS_2016_01, radius = 200m, 10 days before until 10 days after schreck event"}
 
 WSS_2016_01_static_map <- generate_static_maps("WSS_2016_01", 200, 10, 10)
 WSS_2016_01_static_map
 
 ```
+
+For a better understanding of the spatial behavior in terms of expansion we summarized all location of each individual in terms of number of data points in *Table 5*. We chose the individual **NAME** with the highest number of GPS data points within the 200m radius around the scare off with the largest number of data points (WSS_2015_01, see densitiy plots above *Figure 3*). However,*Figure 8* shows all of **NAME** data points from 10 days before until 10 days after the scare off events, outside and inside the radius of 200m (orange circle).
 
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
 # Function to see how many data points per individual are available
@@ -572,16 +579,15 @@ generate_data_points_table <- function(schreck_id, radius, days_before, days_aft
 
 ```
 
-*We chose the individual (01) with the highest number of GPS data points within the 200m buffer zone around the schreck with the largest number of data points (WSS_2015_01, see densitiy plots above,). However, this plot shows all of that individuals data points from 10 days before until 10 days after the schreck events, even outside of the buffer zone (orange circle)*
 
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+```{r, fig.cap= "Table 5: Sum of GPS data points of each wildboar within 200m radius of scare off 10 days before, during, and 10 day after event"}
 
   number_of_points_per_individual <- generate_data_points_table("WSS_2015_01", 200, 10, 10)
   kable(number_of_points_per_individual)
-
+```
+```{r, fig.cap= "Figure 8: Static map of XYs spatial expansion 10 days before, during, and 10 after scare off event of WSS_2015_01"}
   WSS_2015_01_individual <- generate_static_map_individual_wild_boar("WSS_2015_01", 200, 10, 10, 2)
   WSS_2015_01_individual
-
 ```
 
 
@@ -592,11 +598,11 @@ coming soon
 
 # References
 
-(1) 	Suter Forschungsgruppe Wildtiermanagement WILMA, S. Forschungsprojekt Prävention von Wildschweinschäden in Der Landwirtschaft.
-(2) 	Thurfjell, H.; Ball, J. P.; Åhlén, P.-A.; Kornacher, P.; Dettki, H.; Sjöberg, K. Habitat Use and Spatial Patterns of Wild Boar Sus Scrofa (L.): Agricultural Fields and Edges. European Journal of Wildlife Research 2009, 55 (5), 517–523. https://doi.org/10.1007/s10344-009-0268-1.
-(3) 	Geisser, H.; Reyer, H. The Influence of Food and Temperature on Population Density of Wild Boar (Sus Scrofa) in the Thurgau (Switzerland). Journal of Zoology 2005, 267 (1), 89–96. https://doi.org/10.1017/S095283690500734X.
-(4) 	Geisser, H. Efficacy of Hunting, Feeding, and Fencing to Reduce Crop Damage by Wild Boars. https://doi.org/10.2193/0022-541X.
-(5) 	Jagdstatistik. https://www.jagdstatistik.ch/de/statistics?tt=2&dt=0&at=0&st=0&dp=0&ar=GE&th=1&yr%5Bfrom%5D=2000&yr%5Bto%5D=2020&sp=350 (accessed 2022-06-22).
-(6) 	Wildschweinmanagement – Lernen aus der Erfahrung anderer. https://www.admin.ch/gov/de/start/dokumentation/medienmitteilungen.msg-id-8817.html (accessed 2022-06-22).
-(7) 	Thurfjell, H.; Spong, G.; Ericsson, G. Effects of Hunting on Wild Boar (Sus Scrofa) Behaviour. Wildlife Biology 2013, 19 (1), 87–93. https://doi.org/10.2981/12-027.
-(8) 	Meynhardt H. Untersuchung Zur Akustischen, Olfaktorischen Und Visuellen Kommunikation Des Europäischen Wildschweines (Sus Scarofa L.). Beiträge für die Frorstwirtschaft 1980, 14 (2), 74–82.
+1. 	Suter Forschungsgruppe Wildtiermanagement WILMA, S. Forschungsprojekt Prävention von Wildschweinschäden in Der Landwirtschaft.
+2. 	Thurfjell, H.; Ball, J. P.; Åhlén, P.-A.; Kornacher, P.; Dettki, H.; Sjöberg, K. Habitat Use and Spatial Patterns of Wild Boar Sus Scrofa (L.): Agricultural Fields and Edges. European Journal of Wildlife Research 2009, 55 (5), 517–523. https://doi.org/10.1007/s10344-009-0268-1.
+3. 	Geisser, H.; Reyer, H. The Influence of Food and Temperature on Population Density of Wild Boar (Sus Scrofa) in the Thurgau (Switzerland). Journal of Zoology 2005, 267 (1), 89–96. https://doi.org/10.1017/S095283690500734X.
+4. 	Geisser, H. Efficacy of Hunting, Feeding, and Fencing to Reduce Crop Damage by Wild Boars. https://doi.org/10.2193/0022-541X.
+5. 	Jagdstatistik. https://www.jagdstatistik.ch/de/statistics?tt=2&dt=0&at=0&st=0&dp=0&ar=GE&th=1&yr%5Bfrom%5D=2000&yr%5Bto%5D=2020&sp=350 (accessed 2022-06-22).
+6. 	Wildschweinmanagement – Lernen aus der Erfahrung anderer. https://www.admin.ch/gov/de/start/dokumentation/medienmitteilungen.msg-id-8817.html (accessed 2022-06-22).
+7. 	Thurfjell, H.; Spong, G.; Ericsson, G. Effects of Hunting on Wild Boar (Sus Scrofa) Behaviour. Wildlife Biology 2013, 19 (1), 87–93. https://doi.org/10.2981/12-027.
+8. 	Meynhardt H. Untersuchung Zur Akustischen, Olfaktorischen Und Visuellen Kommunikation Des Europäischen Wildschweines (Sus Scarofa L.). Beiträge für die Frorstwirtschaft 1980, 14 (2), 74–82.
