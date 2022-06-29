@@ -38,7 +38,7 @@ Previous studies at the Department WILMA (Wildtiermanagement) at the ZHAW have d
 
 ## Aim of the Study and Research Questions 
 
-This present study is developed within the module Patterns and Trends in environmental Data (PTED 22). The effectiveness of the acoustic wild boar scare off systems is to be investigated on the basis of the spatial behavior of wild boars. In the course of this, gps location data of wild boars with different sampling intervals over a period of about 2 years and data sets of scare off location and agenda were provided. The area of interest in this study is the Fanel region at the western end of Lake Neuchâtel.
+This present study is developed within the module Patterns and Trends in environmental Data (PTED 22). The effectiveness of the acoustic wild boar scare off systems is to be investigated on the basis of the spatial behavior of wild boars. In the course of this, GPS location data of wild boars with different sampling intervals over a period of about 2 years and data sets of scare off location and agenda were provided. The area of interest in this study is the Fanel region at the western end of Lake Neuchâtel.
 
 The aims of this study is to answer the following research questions:
 
@@ -74,11 +74,12 @@ library(knitr)
 library(multcompView)
 ```
 
-Data used for this project was provided from our module supervisors. We used a dataset of wild boar GPS locations with time stamps (*Table 1*; wildschwein_BE), a set with the locations of the scare off (schreck) devices (*Table 2*; schreck_location) and a third set including the data when the schreck devices were on/off with additional information about their parameter settings. (*Table 3*; schreck_agenda). The wild boar location was sampled at 15 min intervals. while for the schreck events we know when they were turned on and off but have no further time information (in regards to their intervalls). The individual schreck settings can be adjusted for two different modes (standard v1 and aggressive v2), volume (a range of 33 - 100), interval (12.5 - 30), max. and min. orientation (0-330). We have access to all of that data as well.
+Data used for this project was provided from our module supervisors. We used a dataset of wild boar GPS locations with time stamps (*Table 1*; wildschwein_BE), a set with the locations of the scare off (schreck) devices (*Table 2*; schreck_location) and a third set including the data when the schreck devices were on/off with additional information about their parameter settings. (*Table 3*; schreck_agenda). The wild boar location was sampled at 15 min intervals. while for the schreck events we know when they were turned on and off but have no further time information (in regards to their intervals). The individual schreck settings can be adjusted for two different modes (standard v1 and aggressive v2), volume (a range of 33 - 100), interval (12.5 - 30), max. and min. orientation (0-330). We have access to all of that data as well.
+For our data analysis we assumed the wild boar location data to be non-constrained in a continuous Euclidian space, as described in Laube (2017) ^9^. Meaning, we assume no boundaries or barriers for the wild boars to reach the agricultural field and the observed area around the scare off. Data sampling was performed with GPS point collectors, therefore data analysis is in a Lagrangian perspectiv ^10^.
 
 ```{r}
 kable(head(wildschwein_BE), caption = "Table 1: Wild boar location data")
-kable(head(schreck_locations), caption = "Table 2: Schreck location data*")
+kable(head(schreck_locations), caption = "Table 2: Schreck location data")
 kable(head(schreck_agenda), caption = "Table 3: Schreck on/off, interval and parameter data")
 ```
 
@@ -607,3 +608,5 @@ In conclusion, although our data analysis did not show a significant effect of t
 6. 	Wildschweinmanagement – Lernen aus der Erfahrung anderer. https://www.admin.ch/gov/de/start/dokumentation/medienmitteilungen.msg-id-8817.html (accessed 2022-06-22).
 7. 	Thurfjell, H.; Spong, G.; Ericsson, G. Effects of Hunting on Wild Boar (Sus Scrofa) Behaviour. Wildlife Biology 2013, 19 (1), 87–93. https://doi.org/10.2981/12-027.
 8. 	Meynhardt H. Untersuchung Zur Akustischen, Olfaktorischen Und Visuellen Kommunikation Des Europäischen Wildschweines (Sus Scarofa L.). Beiträge für die Frorstwirtschaft 1980, 14 (2), 74–82.
+9. 	Laube, P. Representation: Trajectories. In International Encyclopedia of Geography: People, the Earth, Environment and Technology; John Wiley & Sons, Ltd: Oxford, UK, 2017; pp 1–11. https://doi.org/10.1002/9781118786352.wbieg0593.
+10. 	Laube, P. Computational Movement Analysis; Springer International Publishing: Cham, 2014. https://doi.org/10.1007/978-3-319-10268-9.
