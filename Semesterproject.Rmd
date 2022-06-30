@@ -337,7 +337,8 @@ As an alternative to the interactive map function, we also wrote a function call
       theme(legend.position = "bottom") +
       scale_fill_manual("", breaks = "Scare Off Location", values = "red") +
       guides(color = guide_legend(title = "Individual name")) +
-      coord_sf(datum=st_crs(2056))
+      coord_sf(datum=st_crs(2056)) + 
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
     
     return(p)
   }
@@ -540,12 +541,12 @@ plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot
 
 In a further step of exploratory data analysis, we created interactive maps for two scare off events: one with the expected results (*Figure 6*; WSS_2016_01) and on with the opposite results (*Figure 7*; Wss_2015_01) for visual comparison.
 
-```{r, fig.cap = "Figure 6: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event. The red dot shows the scare off location, the blue dots are wild board GPS locations."}
+```{r, fig.cap = "Figure 6: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event. The red dot shows the scare off location, the blue dots are wild board GPS locations. Only WGS84 possible."}
 # The reason why we imported the leaflet widgets as html files, instead of running the code in the markdown file has do to with the fact that the leaflet timeslider seems to fail when we present more than 1 interactive map. Nevertheless, we included the function generate_interactive_map(schreck_id, radius, days_before, days_after) in the methods section.
 knitr::include_url("p_WSS_2015_01.html")
 ```
 
-```{r, fig.cap = "Figure 7: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event.  The red dot shows the scare off location, the blue dots are wild board GPS locations."}
+```{r, fig.cap = "Figure 7: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event.  The red dot shows the scare off location, the blue dots are wild board GPS locations. Only WGS84 possible."}
 knitr::include_url("p_WSS_2016_01.html")
 ```
 
