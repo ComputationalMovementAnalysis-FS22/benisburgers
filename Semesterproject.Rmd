@@ -74,20 +74,20 @@ library(knitr)
 library(multcompView)
 ```
 
-Data used for this project was provided from our module supervisors. We used a dataset of wild boar GPS locations with time stamps (*Table 1*; wildschwein_BE), a set with the locations of the scare off (schreck) devices (*Table 2*; schreck_location) and a third set including the data when the schreck devices were on/off with additional information about their parameter settings. (*Table 3*; schreck_agenda). The wild boar location was sampled at 15 min intervals. while for the schreck events we know when they were turned on and off but have no further time information (in regards to their intervals). The individual schreck settings can be adjusted for two different modes (standard v1 and aggressive v2), volume (a range of 33 - 100), interval (12.5 - 30), max. and min. orientation (0-330). We have access to all of that data as well.
+Data used for this project was provided from our module supervisors. We used a dataset of wild boar GPS locations with time stamps (*Table 1*; wildschwein_BE), a set with the locations of the scare off (schreck) devices (*Table 2*; schreck_location) and a third set including the data when the scare off devices were on/off with additional information about their parameter settings. (*Table 3*; schreck_agenda). The wild boar location was sampled at 15 min intervals. while for the scare off events we know when they were turned on and off but have no further time information (in regards to their intervals). The individual scare off settings can be adjusted for two different modes (standard v1 and aggressive v2), volume (a range of 33 - 100), interval (12.5 - 30), max. and min. orientation (0-330). We have access to all of that data as well.
 For our data analysis we assumed the wild boar location data to be non-constrained in a continuous Euclidian space, as described in Laube (2017) ^9^. Meaning, we assume no boundaries or barriers for the wild boars to reach the agricultural field and the observed area around the scare off. Data sampling was performed with GPS point collectors, therefore data analysis is in a Lagrangian perspectiv ^10^.
 
 ```{r}
 kable(head(wildschwein_BE), caption = "Table 1: Wild boar location data")
-kable(head(schreck_locations), caption = "Table 2: Schreck location data")
-kable(head(schreck_agenda), caption = "Table 3: Schreck on/off, interval and parameter data")
+kable(head(schreck_locations), caption = "Table 2: Scare off location data")
+kable(head(schreck_agenda), caption = "Table 3: Scare off on/off, interval and parameter data")
 ```
 
 ## Data Preprocessing and Tools
 
-Both the wildboar and the schreck data was filtered. The data was filtered for the relevant areas and time periods. As a first step, only wild boar location data within the closer proximity of the schreck locations was considered. Therefore, the data frames were transformed to sf objects and visually investigated (*Figure 1*) as well as cropped to the relevant area (*Figure 2*).
+Both the wildboar and the scare off data was filtered. The data was filtered for the relevant areas and time periods. As a first step, only wild boar location data within the closer proximity of the scare off locations was considered. Therefore, the data frames were transformed to sf objects and visually investigated (*Figure 1*) as well as cropped to the relevant area (*Figure 2*).
 
-```{r, fig.cap= "Figure 1: Wild boar locations (blue) and schreck locations (red) uncropped"}
+```{r, fig.cap= "Figure 1: Wild boar locations (blue) and scare off locations (red) uncropped"}
 # Convert data to sf formats
 schreck_locations_sf <- st_as_sf(schreck_locations,
                                  coords = c("lon", "lat"),
@@ -105,7 +105,7 @@ ggplot() +
   annotation_scale() +
   coord_sf(datum=st_crs(2056))
 
-# Crop both sf data frames (wildschwein & schreck locations) to only show area with significant overlap
+# Crop both sf data frames (wildschwein & scare off locations) to only show area with significant overlap
 
 wildschwein_BE_sf_cropped <- st_crop(wildschwein_BE_sf, xmin = 2560000, xmax = 2580000, ymin = 1200000, ymax = 1220000)
 schreck_locations_sf_cropped <- st_crop(schreck_locations_sf, xmin = 2560000, xmax = 2580000, ymin = 1200000, ymax = 1220000)
@@ -119,7 +119,7 @@ ggplot() +
   coord_sf(datum=st_crs(2056))
 ```
 
-Secondly, the two data frames for the schreck locations and the schreck agenda were joined to a single data frame and afterwards filtered according to the time when wild boar data was available. After filtering, 7 relevant schreck events and locations remain. Those are listed in *Table 4*.
+Secondly, the two data frames for the scare off locations and the scare off agenda were joined to a single data frame and afterwards filtered according to the time when wild boar data was available. After filtering, 7 relevant scare off events and locations remain. Those are listed in *Table 4*.
 
 ```{r}
 # First step: Join the schreck locations with the schreck events
@@ -143,7 +143,7 @@ schreck_agenda_and_locations_merged <- schreck_agenda_and_locations_filtered %>%
 kable(schreck_agenda_and_locations_merged, caption= "Table 4: Scare offs active within wild boar sampling period")
 ```
 
-In order to be able to rule out the possibility that the schreck events somehow interacted with each other, we examined the physical and temporal distances between the schreck events and locations, as shown in *Figure 3*. Although schreck 2015_04 and 2016_06 are very close to each other (within a few meters), they were active in different years. Therefore, we assumed there is no mutual influence in terms of wild boar scare off.
+In order to be able to rule out the possibility that the scare off events somehow interacted with each other, we examined the physical and temporal distances between the scare off events and locations, as shown in *Figure 3*. Although scare off 2015_04 and 2016_06 are very close to each other (within a few meters), they were active in different years. Therefore, we assumed there is no mutual influence in terms of wild boar scare off.
 
 ```{r, fig.cap= "Figure 3: Scare off location overlap"}
 # Show how the circles lie over each other to determine whether to combine some Schreck-Locations
@@ -474,7 +474,7 @@ WSS_2015_01_static_map
 
 ```
 
-```{r, fig.cap="Figure 9: Static map (before, during, after) of WSS_2016_01, radius = 200m, 10 days before until 10 days after schreck event"}
+```{r, fig.cap="Figure 9: Static map (before, during, after) of WSS_2016_01, radius = 200m, 10 days before until 10 days after scare off event"}
 
 WSS_2016_01_static_map <- generate_static_maps("WSS_2016_01", 200, 10, 10)
 WSS_2016_01_static_map
@@ -580,7 +580,7 @@ generate_data_points_table <- function(schreck_id, radius, days_before, days_aft
 ## Scare Off Parameter Setting
 
 *Table 6* shows the summary of parameter settings of the relevant scare offs, including the crop on which they were installed. All scare offs were running during a period of low hunting pressure and no fence was placed. Further, the setting of the scare offs phase was 2 for each. As we could not find a significant effect of the scare offs, modelling the impact depending on the settings is not useful. However, a weighing of the density plots (*Figure 3*) based on the settings is possible. 
-WSS_2016_01 and WSS_2016_05 showed both the expected pattern but the parameter settings are different in terms of mode and volume. Taking in consideration the crop species, we assume, that the standard mode in combination with the higher volume was sufficent to defend the meadow and harvesting crops afford tougher defence strategies. Scare offs in 2015 were all installed on wheat (/potato) crops. The mode of WSS_2015_01 and WSS_2015_03 was switched in the mid of june from standard to agressiv and the volume was enhanced as well. That could explain the decrease of the wildboar occurence in the middle of the scare off events. For WSS_2015_04 no switch of mode was performed, but an increase of volume after the first half of the Schreck event, where also a decrease of wild boar occurence was observed.
+WSS_2016_01 and WSS_2016_05 showed both the expected pattern but the parameter settings are different in terms of mode and volume. Taking in consideration the crop species, we assume, that the standard mode in combination with the higher volume was sufficent to defend the meadow and harvesting crops afford tougher defence strategies. Scare offs in 2015 were all installed on wheat (/potato) crops. The mode of WSS_2015_01 and WSS_2015_03 was switched in the mid of june from standard to agressiv and the volume was enhanced as well. That could explain the decrease of the wildboar occurence in the middle of the scare off events. For WSS_2015_04 no switch of mode was performed, but an increase of volume after the first half of the scare off event, where also a decrease of wild boar occurence was observed.
 
 ```{r}
 schreck_parameter<-schreck_agenda_and_locations_filtered[-9:-10,]
