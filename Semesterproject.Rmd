@@ -2,8 +2,11 @@
 title: Check how to Schreck
 subtitle: Semesterproject of the module PTED FS 22
 author: Fabienne Gräppi and Benjamin Bar-Gera
-output: html_document
-
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
 ---
 
 
@@ -36,7 +39,7 @@ Since almost going extinct in some parts of Europe the population of wild boars 
 
 Previous studies at the Department WILMA (Wildtiermanagement) at the ZHAW have demonstrated a reduction in damage to agricultural crops. In addition, the effectiveness of acoustic wild boar scare offs should be analyzed in terms of their impact on the spatial behavior of wild boars.
 
-## Aim of the Study and Research Questions 
+# Aim of the Study and Research Questions 
 
 This present study is developed within the module Patterns and Trends in environmental Data (PTED 22). The effectiveness of the acoustic wild boar scare off systems is to be investigated on the basis of the spatial behavior of wild boars. In the course of this, GPS location data of wild boars with different sampling intervals over a period of about 2 years and data sets of scare off location and agenda were provided. The area of interest in this study is the Fanel region at the western end of Lake Neuchâtel.
 
@@ -160,6 +163,8 @@ ggplot() +
   labs(color = 'Schreck ID | Date On | Date Off', title = "Radius: 250 m")
 ```
 
+Additionally, for the statistical approaches we had to neglect two scare offs. WSS_2016_06 provides only 11 GPS points within a scare off duration of 30 days (with 10 days before and 14 days after the scare off event and a buffer zone with a radius of 500m around the scare off location) and WSS_2016_13 was active only for 5 days which is not comparable to the other scare off events.
+
 ```{r}
 # Create function that can automatically draw a denstiy plot for a specific schreck location 
 # & specify number of days before and after schreck event that should appear on plot
@@ -216,8 +221,6 @@ draw_density_plot <- function(schreck_id, radii, days_before, days_after) {
 }
 ```
 
-Additionally, for the statistical approaches we had to neglect two scare offs. WSS_2016_06 provides only 11 GPS points within a scare off duration of 30 days (with 10 days before and 14 days after the scare off event and a buffer zone with a radius of 500m around the scare off location) and WSS_2016_13 was active only for 5 days which is not comparable to the other scare off events.
-
 ```{r, fig.cap= "Figure 4: Density plots of scare offs active during wild boar location sampling with duration and number of GPS point"}
 WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(500), 10, 14)
 
@@ -235,34 +238,17 @@ WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", c(500), 10, 14)
 
 plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot, WSS_2016_06_plot, WSS_2016_13_plot, ncol = 2)
 ```
- 
-### New Function
-To get an impression if the scare offs influences the occurrence of wild boars and how is the range of the effect, we designed a function. The function `draw_density_plot(schreck_id, radii, days_before, days_after)` is used to filter the data by observation radius and time for one scare off to then plot it as a density function. Thereby, the time period of days before and after the event can be set, while the time period during the event is given by the scare off agenda. 
 
-# Results
-## Effect of Scare Off on Total Wild Boar Occurance
-### Exploratory Analysis
+## Functions 
+### Density Plots Function (Exploratory)
+To get an impression if the scare offs influences the occurrence of wild boars and how is the range of the effect, we designed a function. The function `draw_density_plot(schreck_id, radii, days_before, days_after)` is used to filter the data by observation radius and time for one scare off to then plot it as a density function. Thereby, the time period of days before and after the event can be set, while the time period during the event is given by the scare off agenda.
 
-The wild boar occurence shows different patterns for each scare off event ( *Figure 5*). The number of GPS point for each event ranges from 178 (WSS_2016_05) to above 10'000 points (WSS_2015_01). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100m, 200m or 400m radius. However the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact for WSS_2016_01 observation.
-In a further step of exploratory data analysis we created interactive maps for two scare off events: one with the expected results (*Map 2*; WSS_2016_01) and on with the opposite results (*Map 1*; Wss_2015_01) for visual comparison.
-
-```{r, fig.cap= "Figure 5: Density plots for each scare off event, 10 days before and 14 days after event"}
-WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(100, 200, 400), 10, 14)
-
-WSS_2015_03_plot <- draw_density_plot("WSS_2015_03", c(100, 200, 400), 10, 14)
-
-WSS_2015_04_plot <- draw_density_plot("WSS_2015_04", c(100, 200, 400), 10, 14)
-
-WSS_2016_01_plot <- draw_density_plot("WSS_2016_01", c(100, 200, 400), 10, 14)
-
-WSS_2016_05_plot <- draw_density_plot("WSS_2016_05", c(100, 200, 400), 10, 14)
-
-WSS_2016_06_plot <- draw_density_plot("WSS_2016_06", c(100, 200, 400), 10, 14)
-
-WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", c(100, 200, 400), 10, 14)
-
-plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot, nrow = 3)
+```{r}
+# Unlike for the other functions, you will find the code for the draw_density_plot(schreck_id, radii, days_before, days_after) function in the chunk above, otherwise we would not have been able to display the plots in the previous section
 ```
+
+### Interactive Map Function (Exploratory)
+To visually explore how an active scare off affects the spatial distribution of wild board, we wrote a function `generate_interactive_map(schreck_id, radius, days_before, days_after)`. The function takes as parameters a specific scare off, the radius of the buffer zone, as well as the number of days before and after the scare off event which should also be included. The function generates an interactive leaflet map which allows the user to swipe through time (from before until after the scare off event) and see the GPS points which occured within the predefined buffer zone throughout this time period.
 
 ```{r}
 generate_interactive_map <- function(schreck_id, radius, days_before, days_after) {
@@ -296,7 +282,9 @@ generate_interactive_map <- function(schreck_id, radius, days_before, days_after
   
   p <- leaflet(data = specific_schreck) %>%
     addTiles() %>%
-    addCircleMarkers() %>%
+    addCircleMarkers(
+      color = "red"
+    ) %>%
     addTimeslider(data = specific_schreck_wildschwein,
                   options = timesliderOptions(
                     position = "topright",
@@ -307,26 +295,138 @@ generate_interactive_map <- function(schreck_id, radius, days_before, days_after
   
   return(p)
 }
-
-# Example: 
-# p_WSS_2015_01 <- generate_interactive_map("WSS_2015_01", 500, 10, 10)
 ```
 
-```{r, fig.cap= "Map 1: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event"}
-# The reason why we imported the leaflet widgets as html files, instead of running the code in the markdown file has do to with the fact that the leaflet timeslider seems to fail when we present more than 1 interactive map. If you want to see how these maps are generated, please have a look at the code in the previous chunk (generate_interactive_map)
-knitr::include_url("p_WSS_2015_01.html")
+### Static map (all invidiauls) function (Exploratory)
+As an alternative to the interactive map function, we also wrote a function called `generate_static_maps(schreck_id, radius, days_before, days_after)`. The function takes a specific scare off, a predefined buffer zone radius, and the number of days before and after the scare off event are over to be included. The function generates three maps which show all data points within this time period (days before scare off event until days after scare off event), before, during and after the scare off event within the buffer zone. The maps also differentiate between the individuals by providing them with different colors.
+
+```{r}
+  generate_static_maps <- function(schreck_id, radius, days_before, days_after) {
+    specific_schreck <- schreck_agenda_and_locations_merged %>%
+      # Filter schreck agenda to specific schreck
+      filter(id == schreck_id)
+    
+    # Draw a circle around that schreck
+    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
+    
+    specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
+      # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
+      filter(
+        DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
+        DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
+      ) %>%
+      # Filter the above-mentioned wildschwein points to ones within the schreck circle
+      st_filter(specific_schreck_circle) %>%
+      # Create a new convenience variable (date, without time) 
+      mutate(
+        date = as.Date(DatetimeUTC),
+        period = 
+          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
+                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
+                        "DURING")),
+        period = factor(period, levels = c("BEFORE", "DURING", "AFTER"))
+      )
+    
+    p <- ggplot() +
+      geom_sf(data = specific_schreck_wildschwein, mapping = aes(color = as.factor(TierName))) +
+      geom_sf(data = specific_schreck, shape = 22, size = 3, mapping = aes(fill = "Scare Off Location")) +
+      facet_grid(~ period) +
+      theme(legend.position = "bottom") +
+      scale_fill_manual("", breaks = "Scare Off Location", values = "red") +
+      guides(color = guide_legend(title = "Individual name"))
+    
+    return(p)
+  }
 ```
 
-```{r, fig.cap= "Map 2: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event"}
-knitr::include_url("p_WSS_2016_01.html")
+### Static map (one invidiaul) function (Exploratory)
+In addition to the interactive map function, we wrote a function called `generate_static_map_individual_wild_boar(schreck_id, radius, days_before, days_after, tier_id)`. The function takes a specific scare off, a predefined buffer zone radius, the number of days before and after the scare off event are over to be included, as well as the ID of a specific individual wild boar. The function generates one map which shows all of that individual's GPS points during this time period (days before scare off event until days after scare off event), even outside of the defined buffer zone. The maps also shows the buffer zone (orange circle), the scare off location and uses color to differentiate between the GPS points which happened before, during and after the scare off event.
+
+To decide which individual to focus on we also wrote the function `generate_data_points_table(schreck_id, radius, days_before, days_after)`, which shows us for a specific scare off location, which individual has the most GPS points within that buffer zone.
+
+```{r}
+# Function to see how many data points per individual are available
+generate_data_points_table <- function(schreck_id, radius, days_before, days_after) {
+    specific_schreck <- schreck_agenda_and_locations_merged %>%
+      # Filter schreck agenda to specific schreck
+      filter(id == schreck_id)
+    
+    # Draw a circle around that schreck
+    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
+    
+    specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
+      # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
+      filter(
+        DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
+        DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
+      ) %>%
+      # Create a new convenience variable (date, without time) 
+      mutate(
+        date = as.Date(DatetimeUTC),
+        period = 
+          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
+                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
+                        "DURING")),
+        period = factor(period, levels = c("BEFORE", "DURING", "AFTER"))
+      )
+    
+    points_per_individual <- specific_schreck_wildschwein %>%
+      group_by(TierID) %>%
+      summarise(
+        total = n()
+      ) %>%
+      arrange(desc(total)) %>%
+      st_drop_geometry()
+    
+    return(points_per_individual)
+  }
 ```
 
-With regard to the research question posed in advance, how effective the wild boar scare off is in keeping away wild boar, we can already make some statements through the explorative data analysis. Out of the 5 scare off that were finally selected for consideration, 3 showed the opposite effect of what we expected. Namely, an increase in wild boar occurrence during the scare off period. The scare offs WSS_2016_01 and WSS_2016_05, on the other hand, showed after exploratory analysis, the pattern what is to be expected in case of an effective defence measure. For this reason, these two scare offs were examined in more detail in a statistical data analysis.
+```{r}
+# Function to generate static map for single individual wild boar
+  generate_static_map_individual_wild_boar <- function(schreck_id, radius, days_before, days_after, tier_id) {
+    specific_schreck <- schreck_agenda_and_locations_merged %>%
+      # Filter schreck agenda to specific schreck
+      filter(id == schreck_id)
+    
+    # Draw a circle around that schreck
+    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
+    
+    specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
+      # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
+      filter(
+        DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
+        DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
+      ) %>%
+      # Create a new convenience variable (date, without time) 
+      mutate(
+        date = as.Date(DatetimeUTC),
+        period = 
+          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
+                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
+                        "DURING")),
+        period = factor(period, levels = c("BEFORE", "DURING", "AFTER"))
+      )
+    
+    specific_schreck_wildschwein_single_individual <- specific_schreck_wildschwein %>%
+      filter(
+        TierID == tier_id
+      )
+    
+    plot <- ggplot(specific_schreck_wildschwein_single_individual) +
+      geom_sf() +
+      geom_path(stat = "sf_coordinates", mapping = aes(geometry = geometry)) +
+      geom_point(stat = "sf_coordinates", mapping = aes(geometry = geometry, color = period)) +
+      geom_sf(data = specific_schreck, shape = 22, size = 3, mapping = aes(fill = "Scare Off Location")) +
+      geom_sf(data = specific_schreck_circle, fill = NA, color = "orange") +
+      scale_fill_manual("", breaks = "Scare Off Location", values = "red")
+    
+    return(plot)
+  }
+```
 
-### Statistical Analysis
-
-An ANOVA revealed a significant difference in wild boar occurrence before, during, and after the scare off event of WSS_2016_01 (p-value =2.91x10-9), considering a 200m impact radius. However, the difference is between the occurrence before and after the startle event, while there is no significant difference to the occurrence during the scare off event on both sides (Tukey's post-hoc test) (*Figure 4*). 
-For WSS_2016_05, no statistically significant effect of the wild boar scare off could be detected, related to the occurrence before, during and after the event considering an effect radius of 200m ANOVA, p= 0.602) (*Figure 5*). 
+### Anova/Boxplot Function (Confirmatory)
+In order to statistically and visually confirm whether a scare off event has an effect on the distribution of wild boars in its vicinity, we wrote the function `anova_for_schreck(schreck_id, radius)`. The function takes as input parameters a specific scare off and a radius for its buffer zone. The function then generates an anova for the number of GPS points **per day** within that buffer zone for the period before, during and after the scare off event. The function then runs a post-hoc tukey test to and applies the labels from this test to a boxplot, allowing the user to easily see whether significant (p < 0.05) differences between these groups (before, during, after) exist.
 
 ```{r}
   # Extract labels and factor levels from Tukey post-hoc 
@@ -406,63 +506,46 @@ For WSS_2016_05, no statistically significant effect of the wild boar scare off 
   }
 ```
 
-```{r, fig.cap="Figure 6: Box Plot with Tukey's Post-Hoc Test for scare off WSS_2016_01, number of GPS locations per day within 200m radius, before, during, and after the scare off event"}
-# Run above function for schreck WSS_2016_01
-  WSS_2016_01_package <- anova_for_schreck("WSS_2016_01", 100)
-  summary(WSS_2016_01_package$anova)
-  WSS_2016_01_package$plot
+# Results
+## Effect of Scare Off on Total Wild Boar Occurance (Q1)
+### Exploratory Analysis
+#### Density Plots
+
+The wild boar occurence shows different patterns for each scare off event ( *Figure 5*). The number of GPS point for each event ranges from 178 (WSS_2016_05) to above 10'000 points (WSS_2015_01). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100m, 200m or 400m radius. However the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact for WSS_2016_01 observation.
+In a further step of exploratory data analysis we created interactive maps for two scare off events: one with the expected results (*Map 2*; WSS_2016_01) and on with the opposite results (*Map 1*; Wss_2015_01) for visual comparison.
+
+```{r, fig.cap= "Figure 5: Density plots for each scare off event, 10 days before and 14 days after event"}
+WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(100, 200, 400), 10, 14)
+
+WSS_2015_03_plot <- draw_density_plot("WSS_2015_03", c(100, 200, 400), 10, 14)
+
+WSS_2015_04_plot <- draw_density_plot("WSS_2015_04", c(100, 200, 400), 10, 14)
+
+WSS_2016_01_plot <- draw_density_plot("WSS_2016_01", c(100, 200, 400), 10, 14)
+
+WSS_2016_05_plot <- draw_density_plot("WSS_2016_05", c(100, 200, 400), 10, 14)
+
+WSS_2016_06_plot <- draw_density_plot("WSS_2016_06", c(100, 200, 400), 10, 14)
+
+WSS_2016_13_plot <- draw_density_plot("WSS_2016_13", c(100, 200, 400), 10, 14)
+
+plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot, WSS_2016_05_plot, nrow = 3)
 ```
 
-```{r, fig.cap="Figure 7: Box Plot with Tukey's Post-Hoc Test for scare off WSS_2016_05, number of GPS locations per day within 200m radius, before, during, and after the scare off event"}
-# Run above function for schreck WSS_2016_01
-  WSS_2016_05_package <- anova_for_schreck("WSS_2016_05", 100)
-  summary(WSS_2016_05_package$anova)
-  WSS_2016_05_package$plot
+#### Interactive Maps
+
+```{r, fig.cap= "Map 1: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event. The red dot shows the scare off location, the blue dots are wild board GPS locations."}
+# The reason why we imported the leaflet widgets as html files, instead of running the code in the markdown file has do to with the fact that the leaflet timeslider seems to fail when we present more than 1 interactive map. Nevertheless, we included the function generate_interactive_map(schreck_id, radius, days_before, days_after) in the methods section.
+knitr::include_url("p_WSS_2015_01.html")
 ```
 
-```{r}
-  
-  generate_static_maps <- function(schreck_id, radius, days_before, days_after) {
-    specific_schreck <- schreck_agenda_and_locations_merged %>%
-      # Filter schreck agenda to specific schreck
-      filter(id == schreck_id)
-    
-    # Draw a circle around that schreck
-    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
-    
-    specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
-      # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
-      filter(
-        DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
-        DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
-      ) %>%
-      # Filter the above-mentioned wildschwein points to ones within the schreck circle
-      st_filter(specific_schreck_circle) %>%
-      # Create a new convenience variable (date, without time) 
-      mutate(
-        date = as.Date(DatetimeUTC),
-        period = 
-          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
-                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
-                        "DURING")),
-        period = factor(period, levels = c("BEFORE", "DURING", "AFTER"))
-      )
-    
-    p <- ggplot() +
-      geom_sf(data = specific_schreck_wildschwein, mapping = aes(color = as.factor(TierName))) +
-      geom_sf(data = specific_schreck, shape = 22, size = 3, mapping = aes(fill = "Schreck Location")) +
-      facet_grid(~ period) +
-      theme(legend.position = "bottom") +
-      scale_fill_manual("", breaks = "Schreck Location", values = "red") +
-      guides(color = guide_legend(title = "Individual name"))
-    
-    return(p)
-  }
+```{r, fig.cap= "Map 2: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event.  The red dot shows the scare off location, the blue dots are wild board GPS locations."}
+knitr::include_url("p_WSS_2016_01.html")
 ```
 
-None of the scare offs shows a significant effect related to the total occurrence of wild boars. Based on this we conclude that the scare offs do not influence the spatial behaviour, in terms of location. For this reason, the second part of research question 1, how long the effect lasts, cannot be answered. The investigation of research question 2, what settings (mode, noise level, interval, azimuth) and setting-combintations are most effective at keeping away wild boar, could therefore not be pursued further.
+With regard to the research question posed in advance, how effective the wild boar scare off is in keeping away wild boar, we can already make some statements through the explorative data analysis. Out of the 5 scare off that were finally selected for consideration, 3 showed the opposite effect of what we expected. Namely, an increase in wild boar occurrence during the scare off period. The scare offs WSS_2016_01 and WSS_2016_05, on the other hand, showed after exploratory analysis, the pattern what is to be expected in case of an effective defence measure. For this reason, these two scare offs were examined in more detail in a statistical data analysis.
 
-## Individual Change in Wild Boars Location
+#### Static Maps
 
 In an additional exploratory data analysis, we scaled the observation from all wild boars to single individuals per scare off. Again, the focus is on comparing scare off events with expected patterns and events with opposite patterns. *Figure 8* shows the locations of the four individuals, Caroline, Claude, Olga, and Sabine, that were within a 200m radius of the scare off event WSS_2015_01 10 days before, during, and 10 days after the event. Caroline and Olga do not seem to be kept away from the scare off, but rather even attracted to it. Also Sabine comes only in the 200m as the scare off is on and remains also afterwards still in the proximity. Only Claude moves away during the scare off event and is no longer within the 200m radius 10 days after the event.
 At WSS_2016_01 the individuals Caroline, Frida and Miriam are to be considered (*Figure 9*). Here moving away of the wild boars is shown again, as already shown in *Figure 5* as well. Caroline disappears during the fright event and also Frida moves away from the 200m radius afterwards. 
@@ -483,90 +566,6 @@ WSS_2016_01_static_map
 
 For a better understanding of the spatial behavior in terms of expansion we summarized all location of each individual in terms of number of data points in *Table 5*. We chose the individual **NAME** with the highest number of GPS data points within the 200m radius around the scare off with the largest number of data points (WSS_2015_01, see densitiy plots above *Figure 5*). However,*Figure 10* shows all of **NAME** data points from 10 days before until 10 days after the scare off events, outside and inside the radius of 200m (orange circle).
 
-```{r}
-# Function to see how many data points per individual are available
-generate_data_points_table <- function(schreck_id, radius, days_before, days_after) {
-    specific_schreck <- schreck_agenda_and_locations_merged %>%
-      # Filter schreck agenda to specific schreck
-      filter(id == schreck_id)
-    
-    # Draw a circle around that schreck
-    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
-    
-    specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
-      # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
-      filter(
-        DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
-        DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
-      ) %>%
-      # Create a new convenience variable (date, without time) 
-      mutate(
-        date = as.Date(DatetimeUTC),
-        period = 
-          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
-                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
-                        "DURING")),
-        period = factor(period, levels = c("BEFORE", "DURING", "AFTER"))
-      )
-    
-    points_per_individual <- specific_schreck_wildschwein %>%
-      group_by(TierID) %>%
-      summarise(
-        total = n()
-      ) %>%
-      arrange(desc(total)) %>%
-      st_drop_geometry()
-    
-    return(points_per_individual)
-  }
-
-```
-
-```{r}
-# Function to generate static map for single individual wild boar
-
-  generate_static_map_individual_wild_boar <- function(schreck_id, radius, days_before, days_after, tier_id) {
-    specific_schreck <- schreck_agenda_and_locations_merged %>%
-      # Filter schreck agenda to specific schreck
-      filter(id == schreck_id)
-    
-    # Draw a circle around that schreck
-    specific_schreck_circle <- st_buffer(specific_schreck, dist = radius)
-    
-    specific_schreck_wildschwein <- wildschwein_BE_sf_cropped %>%
-      # Filter wildschwein points by date to only ones occuring within above-mentioned schreck event
-      filter(
-        DatetimeUTC > as.Date(specific_schreck$datum_on) - days_before,
-        DatetimeUTC < as.Date(specific_schreck$datum_off) + days_after
-      ) %>%
-      # Create a new convenience variable (date, without time) 
-      mutate(
-        date = as.Date(DatetimeUTC),
-        period = 
-          ifelse(DatetimeUTC < specific_schreck_circle$datum_on, "BEFORE", 
-                 ifelse(DatetimeUTC > specific_schreck_circle$datum_off, "AFTER", 
-                        "DURING")),
-        period = factor(period, levels = c("BEFORE", "DURING", "AFTER"))
-      )
-    
-    specific_schreck_wildschwein_single_individual <- specific_schreck_wildschwein %>%
-      filter(
-        TierID == tier_id
-      )
-    
-    plot <- ggplot(specific_schreck_wildschwein_single_individual) +
-      geom_sf() +
-      geom_path(stat = "sf_coordinates", mapping = aes(geometry = geometry)) +
-      geom_point(stat = "sf_coordinates", mapping = aes(geometry = geometry, color = period)) +
-      geom_sf(data = specific_schreck, shape = 22, size = 3, mapping = aes(fill = "Schreck Location")) +
-      geom_sf(data = specific_schreck_circle, fill = NA, color = "orange") +
-      scale_fill_manual("", breaks = "Schreck Location", values = "red")
-    
-    return(plot)
-  }
-
-```
-
 ```{r, fig.cap= "Table 5: Sum of GPS data points of each wildboar within 200m radius of scare off 10 days before, during, and 10 day after event"}
 
   number_of_points_per_individual <- generate_data_points_table("WSS_2015_01", 200, 10, 10)
@@ -577,7 +576,28 @@ generate_data_points_table <- function(schreck_id, radius, days_before, days_aft
   WSS_2015_01_individual
 ```
 
-## Scare Off Parameter Setting
+### Confirmatory Analysis
+
+An ANOVA revealed a significant difference in wild boar occurrence before, during, and after the scare off event of WSS_2016_01 (p-value =2.91x10-9), considering a 200m impact radius. However, the difference is between the occurrence before and after the startle event, while there is no significant difference to the occurrence during the scare off event on both sides (Tukey's post-hoc test) (*Figure 4*). 
+For WSS_2016_05, no statistically significant effect of the wild boar scare off could be detected, related to the occurrence before, during and after the event considering an effect radius of 200m ANOVA, p= 0.602) (*Figure 5*). 
+
+```{r, fig.cap="Figure 6: Box Plot with Tukey's Post-Hoc Test for scare off WSS_2016_01, number of GPS locations per day within 200m radius, before, during, and after the scare off event"}
+# Run above function for schreck WSS_2016_01
+  WSS_2016_01_package <- anova_for_schreck("WSS_2016_01", 100)
+  summary(WSS_2016_01_package$anova)
+  WSS_2016_01_package$plot
+```
+
+```{r, fig.cap="Figure 7: Box Plot with Tukey's Post-Hoc Test for scare off WSS_2016_05, number of GPS locations per day within 200m radius, before, during, and after the scare off event"}
+# Run above function for schreck WSS_2016_01
+  WSS_2016_05_package <- anova_for_schreck("WSS_2016_05", 100)
+  summary(WSS_2016_05_package$anova)
+  WSS_2016_05_package$plot
+```
+
+None of the scare offs shows a significant effect related to the total occurrence of wild boars. Based on this we conclude that the scare offs do not influence the spatial behaviour, in terms of location. For this reason, the second part of research question 1, how long the effect lasts, cannot be answered. The investigation of research question 2, what settings (mode, noise level, interval, azimuth) and setting-combintations are most effective at keeping away wild boar, could therefore not be pursued further.
+
+## Scare Off Parameter Setting (Q2)
 
 *Table 6* shows the summary of parameter settings of the relevant scare offs, including the crop on which they were installed. All scare offs were running during a period of low hunting pressure and no fence was placed. Further, the setting of the scare offs phase was 2 for each. As we could not find a significant effect of the scare offs, modelling the impact depending on the settings is not useful. However, a weighing of the density plots (*Figure 3*) based on the settings is possible. 
 WSS_2016_01 and WSS_2016_05 showed both the expected pattern but the parameter settings are different in terms of mode and volume. Taking in consideration the crop species, we assume, that the standard mode in combination with the higher volume was sufficent to defend the meadow and harvesting crops afford tougher defence strategies. Scare offs in 2015 were all installed on wheat (/potato) crops. The mode of WSS_2015_01 and WSS_2015_03 was switched in the mid of june from standard to agressiv and the volume was enhanced as well. That could explain the decrease of the wildboar occurence in the middle of the scare off events. For WSS_2015_04 no switch of mode was performed, but an increase of volume after the first half of the scare off event, where also a decrease of wild boar occurence was observed.

@@ -265,7 +265,9 @@ generate_interactive_map <- function(schreck_id, radius, days_before, days_after
   
   p <- leaflet(data = specific_schreck) %>%
     addTiles() %>%
-    addCircleMarkers() %>%
+    addCircleMarkers(
+      color = "red"
+      ) %>%
     addTimeslider(data = specific_schreck_wildschwein,
                   options = timesliderOptions(
                     position = "topright",
