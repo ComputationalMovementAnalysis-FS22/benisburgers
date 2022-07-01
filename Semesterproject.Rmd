@@ -29,7 +29,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 
 # Abstract
 
-As part of a previous study, a number of wild boar scare off elements have been employed throughout the Fanel region at the western end of Lake Neuchâtel. The point of these acoustic elements is to scare off the animals so that they disperse and create less damage to the agricultural crops around the scare off elements. As a result of this previous study, we have access to a data set which includes the type and agenda for the scare off elements, as well as the GPS points for a number of wild boars that were living in this area throughout the period when the scare off elements were employed. Using exploratory and confirmatory data analysis methods, we tried to discern whether these scare off elements have any effect on the spatial distribution of the animals, and if so, what settings are the most effective at dispersing the animals. However, based on our analysis the effect of the scare off elements was insignificant at scarring away the animals, and sometimes even seemed to have an attractive effect on them. Based on this modeling the response of the wild boars as a function of the settings was not possible due to the low statistical power. However, a visual comparison of five relevant scare off parameter settings showed that mode and volume could be important factors. Nevertheless, further confirmatory investigations are necessary to confirm this results. All in all, this exercise allowed us to employ the various concepts and tools which we learned throughout the module Patterns and Trends in Environmental Data.
+As part of a previous study, a number of wild boar scare off elements have been employed throughout the Fanel region at the western end of Lake Neuchâtel. The point of these acoustic elements is to scare off the animals so that they disperse and create less damage to the agricultural crops around the scare off elements. As a result of this previous study, we have access to a data set which includes the type and agenda for the scare off elements, as well as the GPS points for a number of wild boars that were living in this area throughout the period when the scare off elements were employed. Using exploratory and confirmatory data analysis methods, we tried to discern whether these scare off elements have any effect on the spatial distribution of the animals, and if so, what settings are the most effective at dispersing the animals. However, based on our analysis the effect of the scare off elements was insignificant at scarring away the animals, and sometimes even seemed to have an attractive effect on them. Based on this, modeling the response of the wild boars as a function of the settings was not possible due to the low statistical power. However, a visual comparison of five relevant scare off parameter settings showed that mode and volume could be important factors. Nevertheless, further confirmatory investigations are necessary to confirm these results. All in all, this exercise allowed us to employ the various concepts and tools which we learned throughout the module Patterns and Trends in Environmental Data.
 
 
 # Introduction
@@ -123,7 +123,7 @@ ggplot() +
   coord_sf(datum=st_crs(2056))
 ```
 
-Secondly, the two data frames for the scare off locations and the scare off agenda were joined to a single data frame and afterwards filtered according to the time when wild boar data was available. After filtering, 7 relevant scare off events and locations remained. Those are listed in *Table 4*.
+Secondly, the two data frames for the scare off locations and the scare off agenda were merged to a single data frame and afterwards filtered according to the time when wild boar data was available. After filtering, 7 relevant scare off events and locations remained (*Table 4*).
 
 ```{r}
 # First step: Join the schreck locations with the schreck events
@@ -520,7 +520,7 @@ In order to statistically and visually confirm whether a scare off event has an 
 ### Exploratory Analysis
 #### Density Plots
 
-The wild boar density shows different patterns for each scare off event (*Figure 5*). The number of GPS points for each event ranges from 178 (WSS_2016_05) to over 10'000 points (WSS_2015_01). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100 m, 200 m or 400 m radius. However the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact for WSS_2016_01 observation.
+The wild boar density shows different patterns for each scare off event (*Figure 5*). The number of GPS points for each event ranges from 178 (WSS_2016_05) to over 10'000 points (WSS_2015_01). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100 m, 200 m or 400 m radius. However, the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact for WSS_2016_01 observation.
 
 ```{r, fig.cap = "Figure 5: Density plots for each scare off event, 10 days before and 14 days after event"}
 WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(100, 200, 400), 10, 14)
@@ -542,21 +542,21 @@ plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot
 
 #### Interactive Maps
 
-In a further step of exploratory data analysis, we created interactive maps for two scare off events: one with the expected results (*Figure 6*; WSS_2016_01) and on with the opposite results (*Figure 7*; Wss_2015_01) for visual comparison.
+In a further step of exploratory data analysis, we created interactive maps for two scare off events: one with the expected results (*Figure 6*; WSS_2016_01) and one with the opposite results (*Figure 7*; Wss_2015_01) for visual comparison.
 
-```{r, fig.cap = "Figure 6: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event. The red dot shows the scare off location, the blue dots are wild board GPS locations. Only WGS84 possible."}
+```{r, fig.cap = "Figure 6: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event. The red dot shows the scare off location, the blue dots are wild board GPS locations (only WGS84 possible)."}
 # The reason why we imported the leaflet widgets as html files, instead of running the code in the markdown file has do to with the fact that the leaflet timeslider seems to fail when we present more than 1 interactive map. Nevertheless, we included the function generate_interactive_map(schreck_id, radius, days_before, days_after) in the methods section.
 knitr::include_url("p_WSS_2015_01.html")
 ```
 
-```{r, fig.cap = "Figure 7: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event.  The red dot shows the scare off location, the blue dots are wild board GPS locations. Only WGS84 possible."}
+```{r, fig.cap = "Figure 7: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event.  The red dot shows the scare off location, the blue dots are wild board GPS locations (only WGS84 possible)."}
 knitr::include_url("p_WSS_2016_01.html")
 ```
 
 #### Static Maps
 ##### All Individuals
 
-In addition to the interactive maps, we also generated various static maps that allow us to visualize the spatial distribution of the wild boar in relation to the scare off event and location. *Figure 8* shows the locations of the four individuals, Caroline, Claude, Olga, and Sabine, that were within a 200 m radius of the scare off event WSS_2015_01, 10 days before, during, and 10 days after the event. Caroline and Olga do not seem to be kept away from the scare off, but rather even attracted to it. Also Sabine shows only in the 200 m radius as the scare off is on and remains also afterwards still in the proximity. Only Claude moves away during the scare off event and is no longer within the 200 m radius 10 days after the event.
+In addition to the interactive maps, we also generated various static maps that allow us to visualize the spatial distribution of the wild boars in relation to the scare off event and location. *Figure 8* shows the locations of the four individuals, Caroline, Claude, Olga, and Sabine, that were within a 200 m radius of the scare off event WSS_2015_01, 10 days before, during, and 10 days after the event. Caroline and Olga do not seem to be kept away from the scare off, but rather even attracted to it. Also Sabine shows only in the 200 m radius as the scare off is on and remains also afterwards still in the proximity. Only Claude moves away during the scare off event and is no longer within the 200 m radius 10 days after the event.
 
 ```{r, fig.cap = "Figure 8: Static map (before, during, after), of WSS_2015_01, radius = 200 m, 10 days before until 10 days after scare off event"}
 
@@ -576,7 +576,7 @@ WSS_2016_01_static_map
 
 ##### One Individual
 
-For a more detailed perspective, we wanted to  visualize all GPS points of a single individual in relation to a scare off event and location to decide which individual to focus on, we first selected the scare off location with the highest number of GPS points within its buffer zone over time (see *Figure 5: Density Plots* above). The buffer zone around scare off WSS_2015_01 includes the highest total number of GPS points (10'656). 
+For a more detailed perspective, we wanted to  visualize all GPS points of a single individual in relation to a scare off event and location. To decide which individual to focus on, we first selected the scare off location with the highest number of GPS points within its buffer zone over time (see *Figure 5: Density Plots* above). The buffer zone around scare off WSS_2015_01 includes the highest total number of GPS points (10'656). 
 
 We then generated a table (*Table 5*) to see how many points belong to each individual within that buffer zone and time period (10 days before until 10 days after the scare off event). We then chose to visualize the movements of the individual with the highest number of points, Sabine. 
 
@@ -597,9 +597,9 @@ With regard to the research question posed in advance, how effective the wild bo
 ### Confirmatory Analysis
 #### ANOVA and Tukey's Post-Hoc Boxplot
 
-An ANOVA revealed a significant difference in wild boar occurrence before, during, and after the scare off event of WSS_2016_01 (p-value =2.91x10-9), considering a 200 m impact radius. However, the difference is between the occurrence before and after the startle event, while there is no significant difference to the occurrence during the scare off event on both sides (Tukey's post-hoc test) (*Figure 11*). 
+An ANOVA revealed a significant difference in wild boar occurrence before, during, and after the scare off event of WSS_2016_01 (*Table 6*), considering a 200 m impact radius. However, the difference is between the occurrence before and after the startle event, while there is no significant difference to the occurrence during the scare off event on both sides (Tukey's post-hoc test) (*Figure 11*). 
 
-For WSS_2016_05, no statistically significant effect of the wild boar scare off could be detected, related to the occurrence before, during, and after the event considering an effect radius of 200 m ANOVA, p= 0.602) (*Figure 12*). 
+For WSS_2016_05, no statistically significant effect of the wild boar scare off could be detected, related to the occurrence before, during, and after the event considering an effect radius of 200 m (*Table 7, Figure 12*). 
 
 ```{r, fig.cap = "Figure 11: Box Plot with Tukey's Post-Hoc Test for scare off WSS_2016_01, number of GPS locations per day within 200 m radius, before, during, and after the scare off event"}
 # Run above function for schreck WSS_2016_01
@@ -620,7 +620,7 @@ None of the scare offs shows a significant effect related to the total occurrenc
 ## Scare Off Parameter Setting (Q2)
 
 *Table 8* shows the summary of parameter settings of the relevant scare offs, including the crop on which they were installed. All scare offs were running during a period of low hunting pressure and no fence was placed. Further, the setting of the scare offs phase was 2 for each. As we could not find a significant effect of the scare offs, modelling the impact depending on the settings is not useful. However, a weighing of the density plots (*Figure 5*) based on the settings is possible. 
-WSS_2016_01 and WSS_2016_05 showed both the expected pattern but the parameter settings are different in terms of mode and volume. Taking in consideration the crop species, we assume, that the standard mode in combination with the higher volume was sufficient to defend the meadow and harvesting crops afford tougher defence strategies. Scare offs in 2015 were all installed on wheat (/potato) crops. The mode of WSS_2015_01 and WSS_2015_03 was switched in the mid of June from standard to aggressive and the volume was enhanced as well. That could explain the decrease of the wild boar occurrence in the middle of the scare off events. For WSS_2015_04 no switch of mode was performed, but an increase of volume after the first half of the scare off event, where also a decrease of wild boar occurrence was observed.
+WSS_2016_01 and WSS_2016_05 showed both the expected pattern but the parameter settings are different in terms of mode and volume. Taking into consideration the crop species, we assume, that the standard mode in combination with the higher volume was sufficient to defend the meadow and harvesting crops afford tougher defence strategies. Scare offs in 2015 were all installed on wheat (/potato) crops. The mode of WSS_2015_01 and WSS_2015_03 was switched in the mid of June from standard to aggressive and the volume was enhanced as well. That could explain the decrease of the wild boar occurrence in the middle of the scare off events. For WSS_2015_04 no switch of mode was performed, but an increase of volume after the first half of the scare off event, where also a decrease of wild boar occurrence was observed.
 
 ```{r}
 schreck_parameter <- schreck_agenda_and_locations_filtered[-9:-10,]
@@ -636,13 +636,13 @@ In this work, we set up two research questions that build on each other. To answ
 
 To answer the first research question, we compared the scare off periods, showing very different data volumes per scare off event. This in turn affects the statistical comparability in the second step. The 10 day pre- and post-scare off periods tend to represent the immediate impact of the scare offs, and lengthening or restricting these periods may lead to different results. In summary, although there was a visual effect of the scare offs, it was not statistically significant. Thus, based on our data and analysis, we cannot answer the second part of the research question, how long the effect of the scare offs lasts.
 
-Nevertheless, differences in the importance of individual parameters can be seen when comparing the parameter settings, in regard of research question 2. For example, the mode and the volume seem to have an effect on the efficiency. This is especially indicated by the decrease in the occurrence of wild boar after switching the mode and increasing the volume. In the first part of the data analysis, we did not consider switching off mode. In retrospect, it appears to have had an effect. However, our analysis strategy requires a certain amount of time before and after the scare off event to have a basis for comparison as a control, which is not the case with switching mode without interruption. Also, the comparison with a previous year based on these data was not possible, because the wild boars were tracked in irregular intervals. Furthermore, other effects, such as different crops and weather conditions or random behavior of the wild boars could dominate here.  Since no significant effect of the scare off could be detected, we did not consider it useful to generate a statistical model to describe the ability of the wild boars to stay away. Therefore, only statements based on exploratory data analysis are possible.
+Since no significant effect of the scare off could be detected, we did not consider it useful to generate a statistical model to describe the ability of the wild boars to stay away. Therefore, only statements based on exploratory data analysis are possible. Nevertheless, differences in the importance of individual parameters can be seen when comparing the parameter settings, in regard of research question 2. For example, the mode and the volume seem to have an effect on the efficiency. This is especially indicated by the decrease in the occurrence of wild boar after switching the mode from standard to aggressive and increasing the volume. In the first part of the data analysis, we did not consider switching of the mode. In retrospect, it appears to have had an effect. However, our analysis strategy requires a certain amount of time before and after the scare off event to have a basis for comparison as a control, which is not the case with switching mode without interruption. Also, the comparison with a previous year based on these data was not possible, because the wild boars were tracked in irregular intervals. Furthermore, other effects, such as different crops and weather conditions or random behavior of the wild boars could dominate here.
 
-In conclusion, although our data analysis did not show a significant effect of the scare offs, we were able to show that the scaling influences the results. In a further analysis, it would therefore be useful to distinguish between crops and parameters at the beginning. Furthermore, a better alignment of the data collection of wild boar locations and scare events is advisable in a re-sampling to be able to use the data efficiently.
+In conclusion, although our data analysis did not show a significant effect of the scare offs, we were able to show that the scaling influences the results. In a further analysis, it would therefore be useful to distinguish between crops and parameters at the beginning. Furthermore, a better alignment of the data collection of wild boar locations and scare off events is advisable in a re-sampling to be able to use the data efficiently.
 
 # References
 
-1. 	Suter Forschungsgruppe Wildtiermanagement WILMA, S. Forschungsprojekt Prävention von Wildschweinschäden in Der Landwirtschaft.
+1. 	Suter Forschungsgruppe Wildtiermanagement WILMA, S. Forschungsprojekt Prävention von Wildschweinschäden in Der Landwirtschaft, 2013.
 2. 	Thurfjell, H.; Ball, J. P.; Åhlén, P.-A.; Kornacher, P.; Dettki, H.; Sjöberg, K. Habitat Use and Spatial Patterns of Wild Boar Sus Scrofa (L.): Agricultural Fields and Edges. European Journal of Wildlife Research 2009, 55 (5), 517–523. https://doi.org/10.1007/s10344-009-0268-1.
 3. 	Geisser, H.; Reyer, H. The Influence of Food and Temperature on Population Density of Wild Boar (Sus Scrofa) in the Thurgau (Switzerland). Journal of Zoology 2005, 267 (1), 89–96. https://doi.org/10.1017/S095283690500734X.
 4. 	Geisser, H. Efficacy of Hunting, Feeding, and Fencing to Reduce Crop Damage by Wild Boars. https://doi.org/10.2193/0022-541X.
