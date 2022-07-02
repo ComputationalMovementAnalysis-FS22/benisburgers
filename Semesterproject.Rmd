@@ -34,7 +34,7 @@ As part of a previous study, a number of wild boar scare off elements have been 
 
 # Introduction
 
-Since almost going extinct in some parts of Europe the population of wild boars (*Sus scrofa*) has increased strongly ^1,2^, and they are now the fifth largest ungulated species in Europe ^3,4^. The increase of population in Europe has had significant influence on the biodiversity in forests and an economic impact on cultivated areas due to damage in crop fields and transmission of diseases on domestic animals ^3^. In Switzerland the damages from wild boars to cultivated areas cumulate to several million CHF a year ^5^. In order to reduce damage from wild boars in Switzerland, the Federal Environmental Agency (Bundesamt für Umwelt/BAFU) has released a document with tips and guidelines for the regulation of wild boar management and damage prevention. Measures described in the guideline include population control through hunting, employment of damage reducing actions, such as the use of electrical fences around cultivated areas or dissuasive feeding and the appropriate reimbursement for damages ^2,6,7^. Hunting to reduce population might be the most effective way to reduce damages but it can also have a negative impact on the living environment of other animals or plants and is highly time as well as work intensive ^4,6,7^. Other measures such as electrical fencing are sometimes also time intensive and costly to install. However, adequate defense measures are needed in the future as with population growth and the increasing distribution of wild boars, the pressure on agricultural land will continue to increase.  Due to the drawbacks of the described measures cheaper and less time and work consuming instruments have been tested such as acoustic scare offs (also known as 'schrecks') ^1^. Wild boars have a keen sense of hearing and communicate with each other with warning sounds when they sense danger ^8^. This characteristic can be exploited to keep wild boars away from agricultural land by means of an acoustic scare device. This involves playing wild boar warning sounds or other sounds that signify danger at intervals.
+Since almost going extinct in some parts of Europe the population of wild boars (*Sus scrofa*) has increased strongly ^1,2^, and they are now the fifth largest ungulate species in Europe ^3,4^. The increase of population in Europe has had significant influence on the biodiversity in forests and an economic impact on cultivated areas due to damage in crop fields and transmission of diseases on domestic animals ^3^. In Switzerland the damages from wild boars to cultivated areas cumulate to several million CHF a year ^5^. In order to reduce damage from wild boars in Switzerland, the Federal Environmental Agency (Bundesamt für Umwelt/BAFU) has released a document with tips and guidelines for the regulation of wild boar management and damage prevention. Measures described in the guideline include population control through hunting, employment of damage reducing actions, such as the use of electrical fences around cultivated areas or dissuasive feeding and the appropriate reimbursement for damages ^2,6,7^. Hunting to reduce population might be the most effective way to reduce damages but it can also have a negative impact on the living environment of other animals or plants and is highly time- as well as work-intensive ^4,6,7^. Other measures such as electrical fencing are also time-intensive and costly to install. However, adequate defense measures are needed in the future as with population growth and the increasing distribution of wild boars, the pressure on agricultural land will continue to increase.  Due to the drawbacks of the described measures cheaper and less time- and work-consuming instruments have been tested such as acoustic scare offs (also known as 'schrecks') ^1^. Wild boars have a keen sense of hearing and communicate with each other with warning sounds when they sense danger ^8^. This characteristic can be exploited to keep wild boars away from agricultural land by means of an acoustic scare device. This involves playing wild boar warning sounds or other sounds that signify danger at intervals.
 
 Previous studies at the Department WILMA (Wildtiermanagement) at the ZHAW have demonstrated a reduction in damage to agricultural crops. In addition, the effectiveness of acoustic wild boar scare offs should now be analyzed with this study, in terms of their influence on the spatial behavior of wild boars.
 
@@ -78,8 +78,8 @@ library(multcompView)
 library(pander)
 ```
 
-Data used for this project was provided from our module supervisors. We used a dataset of wild boar GPS locations with time stamps (*Table 1*; wildschwein_BE), a set with the locations of the scare off (schreck) devices (*Table 2*; schreck_location) and a third set including the data when the scare off devices were on/off with additional information about their parameter settings. (*Table 3*; schreck_agenda). The wild boar location was sampled at 15 min intervals. While for the scare off events we know when they were turned on and off but have no further, more precise time information (in regards to their intervals). The individual scare off settings can be adjusted for two different modes (standard v1 and aggressive v2), volume (a range of 33 - 100), interval (12.5 - 30), max. and min. orientation (0-330). We have access to all of that data as well.
-For our data analysis we assumed the wild boar location data to be non-constrained in a continuous Euclidian space, as described in Laube (2017) ^9^. Meaning, we assume no boundaries or barriers for the wild boars to reach the agricultural field and the observed area around the scare off. Data sampling was performed with GPS point collectors, therefore data analysis is in a Lagrangian perspectiv ^10^.
+Data used for this project was provided by our module supervisors. We used a dataset of wild boar GPS locations with time stamps (*Table 1*; wildschwein_BE), a set with the locations of the scare off (schreck) devices (*Table 2*; schreck_location) and a third set including the data when the scare off devices were on/off with additional information about their parameter settings. (*Table 3*; schreck_agenda). The wild boar location was sampled at 15 min intervals. While for the scare off events we know when they were turned on and off but have no further, more precise time information (in regards to their intervals). The individual scare off settings can be adjusted for two different modes (standard v1 and aggressive v2), volume (a range of 33 - 100), interval (12.5 - 30), max. and min. orientation (0-330). We have access to all of that data as well.
+For our data analysis we assumed the wild boar location data to be non-constrained in a continuous Euclidian space, as described in Laube (2017) ^9^. Meaning, we assume no boundaries or barriers for the wild boars to reach the agricultural field and the observed area around the scare off. Data sampling was performed with GPS point collectors, therefore data analysis is in a Lagrangian perspective ^10^.
 
 ```{r}
 kable(head(wildschwein_BE), caption = "Table 1: Wild boar location data")
@@ -243,7 +243,7 @@ plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot
 ## Functions 
 ### Density Plots Function
 
-To get an impression if the scare offs influences the occurrence of wild boars and how is the range of the effect, we designed a function. The function `draw_density_plot(schreck_id, radii, days_before, days_after)` is used to filter the data by observation radius and time for one scare off to then plot it as a density function. Thereby, the time period of days before and after the event can be set, while the time period during the event is given by the scare off agenda.
+To get an impression if the scare offs influences the occurrence of wild boars and how far their effect ranges, we designed a function. The function `draw_density_plot(schreck_id, radii, days_before, days_after)` is used to filter the data by observation radius and time for one scare off to then plot it as a density function. Thereby, the time period of days before and after the event can be set, while the time period during the event is provided by the scare off agenda.
 
 ```{r}
 # Unlike for the other functions, you will find the code for the draw_density_plot(schreck_id, radii, days_before, days_after) function in the chunk above, otherwise we would not have been able to display the plots in the previous section
@@ -300,7 +300,7 @@ generate_interactive_map <- function(schreck_id, radius, days_before, days_after
 }
 ```
 
-### Static Map (All Invidiauls) Function
+### Static Map (All Individuals) Function
 
 As an alternative to the interactive map function, we also wrote a function called `generate_static_maps(schreck_id, radius, days_before, days_after)`. The function takes a specific scare off, a predefined buffer zone radius, and the number of days before and after the scare off event are over to be included. The function generates three maps, each one showing all data points within a period in relation to the scare off event (before, during, and after the scare off). Only data points that fall within this time period (days before scare off event until days after scare off event) and within the buffer zone are considered. The maps also differentiate between the individuals by providing them with different colors.
 
@@ -345,7 +345,7 @@ As an alternative to the interactive map function, we also wrote a function call
   }
 ```
 
-### Static Map (One Invidiaul) Function
+### Static Map (One Individual) Function
 
 In addition to the interactive map function, we wrote a function called `generate_static_map_individual_wild_boar(schreck_id, radius, days_before, days_after, tier_id)`. The function takes a specific scare off, a predefined buffer zone radius, the number of days before and after the scare off event are over to be included, as well as the ID of a specific individual wild boar. The function generates one map which shows all of that individual's GPS points during this time period (days before scare off event until days after scare off event), even outside of the defined buffer zone. The map also shows the buffer zone (orange circle), the scare off location and uses color to differentiate between the GPS points which happened before, during, and after the scare off event.
 
@@ -520,7 +520,7 @@ In order to statistically and visually confirm whether a scare off event has an 
 ### Exploratory Analysis
 #### Density Plots
 
-The wild boar density shows different patterns for each scare off event (*Figure 5*). The number of GPS points for each event ranges from 178 (WSS_2016_05) to over 10'000 points (WSS_2015_01). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100 m, 200 m or 400 m radius. However, the amplitude decreases with larger radius. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radius. While for WSS_2016_05 the size of the radius has low impact on the observation, it has a great impact for WSS_2016_01 observation.
+The wild boar density shows different patterns for each scare off event (*Figure 5*). The number of GPS points for each event ranges from 178 (WSS_2016_05) to over 10'000 points (WSS_2015_01). For WSS_2015_01, WSS_2015_03, and  WSS_2015_04 we observe the contrary pattern of what we expected, the occurrence increases during the first half of the event and then begins to decrease. The occurrence change is very similar when considering 100 m, 200 m or 400 m radius. However, the amplitude decreases with larger radii. WSS_2016_01 and WSS_2016_05 follow more the expected pattern, but the difference of the number of GPS points is high. For those scare off we observe higher amplitudes for smaller radii. While for WSS_2016_05 the size of the radius has a low impact on the observations, it has a great impact for WSS_2016_01 observations.
 
 ```{r, fig.cap = "Figure 5: Density plots for each scare off event, 10 days before and 14 days after event"}
 WSS_2015_01_plot <- draw_density_plot("WSS_2015_01", c(100, 200, 400), 10, 14)
@@ -544,12 +544,12 @@ plot_grid(WSS_2015_01_plot, WSS_2015_03_plot, WSS_2015_04_plot, WSS_2016_01_plot
 
 In a further step of exploratory data analysis, we created interactive maps for two scare off events: one with the expected results (*Figure 6*; WSS_2016_01) and one with the opposite results (*Figure 7*; Wss_2015_01) for visual comparison.
 
-```{r, fig.cap = "Figure 6: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event. The red dot shows the scare off location, the blue dots are wild board GPS locations (only WGS84 possible)."}
+```{r, fig.cap = "Figure 6: Wild boar location of WSS_2015_01 scare off, 10 days before, during, and 14 days after event. The red dot shows the scare off location, the blue dots are wild boar GPS locations."}
 # The reason why we imported the leaflet widgets as html files, instead of running the code in the markdown file has do to with the fact that the leaflet timeslider seems to fail when we present more than 1 interactive map. Nevertheless, we included the function generate_interactive_map(schreck_id, radius, days_before, days_after) in the methods section.
 knitr::include_url("p_WSS_2015_01.html")
 ```
 
-```{r, fig.cap = "Figure 7: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event.  The red dot shows the scare off location, the blue dots are wild board GPS locations (only WGS84 possible)."}
+```{r, fig.cap = "Figure 7: Wild boar location of WSS_2016_01 scare off, 10 days before, during, and 14 days after event.  The red dot shows the scare off location, the blue dots are wild boar GPS locations."}
 knitr::include_url("p_WSS_2016_01.html")
 ```
 
@@ -592,7 +592,7 @@ As a result, we generated *Figure 10*, which shows all of Sabine's data points f
   WSS_2015_01_individual
 ```
 
-With regard to the research question posed in advance, how effective the wild boar scare off is in keeping away wild boar, we can already make some statements through the explorative data analysis. Out of the 5 scare off that were finally selected for consideration, 3 showed the opposite effect of what we expected. Namely, an increase in wild boar occurrence during the scare off period. The scare offs WSS_2016_01 and WSS_2016_05, on the other hand, showed after exploratory analysis, the expected pattern in case of an effective defense measure. For this reason, these two scare offs were examined in more detail in a statistical data analysis.
+With regard to the research question posed earlier, how effective the wild boar scare off is in keeping away wild boar, we can already make some statements through the explorative data analysis. Out of the 5 scare offs that were finally selected for consideration, 3 showed the opposite effect of what we expected. Namely, an increase in wild boar occurrence during the scare off period. The scare offs WSS_2016_01 and WSS_2016_05, on the other hand, showed after exploratory analysis, the expected pattern in case of an effective defense measure. For this reason, these two scare offs were examined in more detail in a statistical data analysis.
 
 ### Confirmatory Analysis
 #### ANOVA and Tukey's Post-Hoc Boxplot
@@ -604,20 +604,20 @@ For WSS_2016_05, no statistically significant effect of the wild boar scare off 
 ```{r, fig.cap = "Figure 11: Box Plot with Tukey's Post-Hoc Test for scare off WSS_2016_01, number of GPS locations per day within 200 m radius, before, during, and after the scare off event"}
 # Run above function for schreck WSS_2016_01
   WSS_2016_01_package <- anova_for_schreck("WSS_2016_01", 200)
-  pander(summary(WSS_2016_01_package$anova), caption = "Table 6: Summary of Analysis of Variance Model for scare off WSS_2016_01 (number of GPS locations per day within 200 m radius ~ period in relation to scare off event")
+  pander(summary(WSS_2016_01_package$anova), caption = "Table 6: Summary of Analysis of Variance Model for scare off WSS_2016_01 (number of GPS locations per day within 200 m radius ~ period in relation to scare off event)")
   WSS_2016_01_package$plot
 ```
 
 ```{r, fig.cap = "Figure 12: Box Plot with Tukey's Post-Hoc Test for scare off WSS_2016_05, number of GPS locations per day within 200 m radius, before, during, and after the scare off event"}
 # Run above function for schreck WSS_2016_01
   WSS_2016_05_package <- anova_for_schreck("WSS_2016_05", 200)
-  pander(summary(WSS_2016_05_package$anova), caption = "Table 7: Summary of Analysis of Variance Model for scare off WSS_2016_05 (number of GPS locations per day within 200 m radius ~ period in relation to scare off event")
+  pander(summary(WSS_2016_05_package$anova), caption = "Table 7: Summary of Analysis of Variance Model for scare off WSS_2016_05 (number of GPS locations per day within 200 m radius ~ period in relation to scare off event)")
   WSS_2016_05_package$plot
 ```
 
 None of the scare offs shows a significant effect related to the total occurrence of wild boars. Based on this we conclude that the scare offs do not influence the spatial behavior, in terms of location. For this reason, the second part of research question 1, how long the effect lasts, cannot be answered. The investigation of research question 2, what settings (mode, noise level, interval, azimuth) and setting-combinations are most effective at keeping away wild boar, could therefore not be pursued further in a statistical manner.
 
-## Scare Off Parameter Setting (Q2)
+## Scare Off Parameter Settings (Q2)
 
 *Table 8* shows the summary of parameter settings of the relevant scare offs, including the crop on which they were installed. All scare offs were running during a period of low hunting pressure and no fence was placed. Further, the setting of the scare offs phase was 2 for each. As we could not find a significant effect of the scare offs, modelling the impact depending on the settings is not useful. However, a weighing of the density plots (*Figure 5*) based on the settings is possible. 
 WSS_2016_01 and WSS_2016_05 showed both the expected pattern but the parameter settings are different in terms of mode and volume. Taking into consideration the crop species, we assume, that the standard mode in combination with the higher volume was sufficient to defend the meadow and harvesting crops afford tougher defence strategies. Scare offs in 2015 were all installed on wheat (/potato) crops. The mode of WSS_2015_01 and WSS_2015_03 was switched in the mid of June from standard to aggressive and the volume was enhanced as well. That could explain the decrease of the wild boar occurrence in the middle of the scare off events. For WSS_2015_04 no switch of mode was performed, but an increase of volume after the first half of the scare off event, where also a decrease of wild boar occurrence was observed.
